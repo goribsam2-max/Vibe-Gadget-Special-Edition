@@ -48,7 +48,7 @@ const SignUp: React.FC = () => {
   useEffect(() => {
     // Initialize recaptcha verifier only once
     if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sign-up-button', {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
         'callback': (response: any) => {
           // reCAPTCHA solved
@@ -141,8 +141,9 @@ const SignUp: React.FC = () => {
         setTimeout(() => navigate("/region"), 1000);
       }
     } catch (err: any) {
+      console.error("SignUp Error:", err);
       setMascotFocus("error");
-      notify(getFriendlyErrorMessage(err), "error");
+      notify(getFriendlyErrorMessage(err) + " (" + err.code + ")", "error");
       // Reset reCAPTCHA on error so it can be used again
       if (window.recaptchaVerifier && authType === 'phone') {
          window.recaptchaVerifier.render().then(function(widgetId: any) {
@@ -256,8 +257,8 @@ const SignUp: React.FC = () => {
           </label>
         </div>
 
+        <div id="recaptcha-container"></div>
         <Button
-          id="sign-up-button"
           disabled={loading}
           className="w-full h-12 mt-6 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-xl font-semibold shadow-lg shadow-black/20 dark:shadow-white/10"
         >

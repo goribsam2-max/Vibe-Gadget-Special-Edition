@@ -15,6 +15,13 @@ export const getFriendlyErrorMessage = (error: any): string => {
   if (code.includes("auth/expired-action-code")) return "The reset link has expired. Please request a new one.";
   if (code.includes("auth/invalid-action-code")) return "The reset link is invalid. It may have already been used.";
   
+  // Phone Auth specific errors
+  if (code.includes("auth/invalid-phone-number")) return "The phone number entered is invalid. Please check the country code and number.";
+  if (code.includes("auth/missing-phone-number")) return "Please enter a valid phone number.";
+  if (code.includes("auth/quota-exceeded")) return "SMS quota exceeded. Please try again later or use email signup.";
+  if (code.includes("auth/unauthorized-domain")) return "This domain is not authorized for phone authentication in Firebase Console.";
+  if (code.includes("auth/captcha-check-failed") || code.includes("auth/invalid-app-credential")) return "reCAPTCHA verification failed. Please try again.";
+
   // Generic fallback if none match but it's an auth error
   if (code.includes("auth/")) return "Authentication failed. Please check your details and try again.";
 
