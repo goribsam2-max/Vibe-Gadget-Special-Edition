@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useNotify } from "../components/Notifications";
@@ -14,6 +14,13 @@ import { VibeMascot, MascotState } from "../components/ui/VibeMascot";
 import { PasswordStrength } from "../components/ui/PasswordStrength";
 import SEO from "../components/SEO";
 import { validateContact } from "../lib/utils";
+
+declare global {
+  interface Window {
+    recaptchaVerifier: any;
+    confirmationResult: any;
+  }
+}
 
 const SignUp: React.FC = () => {
   const [name, setName] = useState("");
@@ -38,17 +45,17 @@ const SignUp: React.FC = () => {
   else if (mascotFocus === 'error') mascotState = 'error';
   const notify = useNotify();
 
-  React.useEffect(() => {
-    // Removed auto redirect
-  }, [navigate]);
-
-  const getAuthEmail = () => {
-    if (authType === "phone") {
-      const cleanPhone = phoneNumber.startsWith("0") ? phoneNumber.substring(1) : phoneNumber;
-      return `${countryCode.replace('+', '')}${cleanPhone}@phone.vibegadget.com`;
+  useEffect(() => {
+    // Initialize recaptcha verifier only once
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'sign-up-button', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved
+        }
+      });
     }
-    return email;
-  };
+  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,82 +74,81 @@ const SignUp: React.FC = () => {
     if (authType === "email" && email !== "admin@vibe.shop") {
       const error = validateContact(email, 'email');
       if (error) return notify(error, "error");
+      
+      const hasLower = /[a-z]/.test(password);
+      const hasUpper = /[A-Z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[^A-Za-z0-9]/.test(password);
+      if (password.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
+         return notify("Please ensure your password meets all strength requirements.", "error");
+      }
     } else if (authType === "phone") {
       const error = validateContact(phoneNumber, 'phone');
       if (error) return notify(error, "error");
     }
 
-    const hasLower = /[a-z]/.test(password);
-    const hasUpper = /[A-Z]/.test(password);
-    const hasNumber = /[0-9]/.test(password);
-    const hasSpecial = /[^A-Za-z0-9]/.test(password);
-    if (password.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
-       return notify("Please ensure your password meets all strength requirements.", "error");
-    }
-
     setLoading(true);
-    const authEmail = getAuthEmail();
-
-    // Check if it's already used as a secondary email or phone
-    try {
-        const identifier = authType === 'phone' ? (countryCode + phoneNumber.replace(/^0+/, '')) : email;
-        const res = await fetch('/api/lookup-auth-email', {
-           method: 'POST',
-           headers: {'Content-Type': 'application/json'},
-           body: JSON.stringify({ identifier })
-        });
-        const data = await res.json();
-        if (data && data.authEmail) {
-            setLoading(false);
-            setMascotFocus("error");
-            return notify("This account already exists. Please sign in instead.", "error");
-        }
-    } catch (e) {}
 
     try {
-      const userCred = await createUserWithEmailAndPassword(
-        auth,
-        authEmail,
-        password,
-      );
-      const user = userCred.user;
-      await updateProfile(user, { displayName: name });
+      if (authType === "phone") {
+        const formattedPhone = `${countryCode}${phoneNumber.replace(/^0+/, '')}`;
+        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
+        window.confirmationResult = confirmationResult;
+        
+        sessionStorage.setItem('signup_name', name);
+        sessionStorage.setItem('signup_phone', formattedPhone);
+        
+        notify("OTP has been sent to your phone number", "success");
+        navigate("/verify");
+      } else {
+        // Email flow
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCred.user;
+        await updateProfile(user, { displayName: name });
 
-      try {
-          const accountsStr = localStorage.getItem("vibe_saved_accounts");
-          let accounts = accountsStr ? JSON.parse(accountsStr) : [];
-          accounts = accounts.filter((a: any) => a.uid !== user.uid);
-          accounts.push({
-              uid: user.uid,
-              email: authEmail,
-              password: password,
-              displayName: name,
-              photoURL: "",
-              lastPasswordChange: null,
-          });
-          localStorage.setItem("vibe_saved_accounts", JSON.stringify(accounts));
-      } catch (e) {}
+        try {
+            const accountsStr = localStorage.getItem("vibe_saved_accounts");
+            let accounts = accountsStr ? JSON.parse(accountsStr) : [];
+            accounts = accounts.filter((a: any) => a.uid !== user.uid);
+            accounts.push({
+                uid: user.uid,
+                email: email,
+                password: password,
+                displayName: name,
+                photoURL: "",
+                lastPasswordChange: null,
+            });
+            localStorage.setItem("vibe_saved_accounts", JSON.stringify(accounts));
+        } catch (e) {}
 
-      const userData = {
-        uid: user.uid,
-        email: authEmail,
-        displayName: name,
-        role: "user",
-        isBanned: false,
-        createdAt: Date.now(),
-        registrationDate: Date.now(),
-        lastActive: Date.now(),
-      };
+        const userData = {
+          uid: user.uid,
+          email: email,
+          displayName: name,
+          role: "user",
+          isBanned: false,
+          createdAt: Date.now(),
+          registrationDate: Date.now(),
+          lastActive: Date.now(),
+        };
 
-      await setDoc(doc(db, "users", user.uid), userData);
+        await setDoc(doc(db, "users", user.uid), userData);
 
-      localStorage.setItem("vibe_last_signup", Date.now().toString());
-      setMascotFocus("success");
-      notify("Account created successfully!", "success");
-      setTimeout(() => navigate("/region"), 1000);
+        localStorage.setItem("vibe_last_signup", Date.now().toString());
+        setMascotFocus("success");
+        notify("Account created successfully!", "success");
+        setTimeout(() => navigate("/region"), 1000);
+      }
     } catch (err: any) {
       setMascotFocus("error");
       notify(getFriendlyErrorMessage(err), "error");
+      // Reset reCAPTCHA on error so it can be used again
+      if (window.recaptchaVerifier && authType === 'phone') {
+         window.recaptchaVerifier.render().then(function(widgetId: any) {
+             // @ts-ignore
+             grecaptcha.reset(widgetId);
+         });
+      }
     } finally {
       setLoading(false);
     }
@@ -195,39 +201,41 @@ const SignUp: React.FC = () => {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Password
-            </label>
-            <div className="relative h-max">
-              <Input
-                placeholder="At least 8 characters"
-                className="peer ps-10 pe-10 h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setMascotFocus('password')}
-                onBlur={() => setMascotFocus('idle')}
-                minLength={8}
-                required
-              />
-              <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3.5 peer-disabled:opacity-50">
-                <Lock className="size-4" aria-hidden="true" />
+          {authType === "email" && (
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                Password
+              </label>
+              <div className="relative h-max">
+                <Input
+                  placeholder="At least 8 characters"
+                  className="peer ps-10 pe-10 h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setMascotFocus('password')}
+                  onBlur={() => setMascotFocus('idle')}
+                  minLength={8}
+                  required
+                />
+                <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3.5 peer-disabled:opacity-50">
+                  <Lock className="size-4" aria-hidden="true" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                  onFocus={() => setMascotFocus('password')}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                onFocus={() => setMascotFocus('password')}
-              >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
+              
+              {(password.length > 0 || mascotFocus === 'password') && (
+                 <PasswordStrength password={password} />
+              )}
             </div>
-            
-            {(password.length > 0 || mascotFocus === 'password') && (
-               <PasswordStrength password={password} />
-            )}
-          </div>
+          )}
         </div>
 
         <div className="flex items-center space-x-3 pt-2">
@@ -250,6 +258,7 @@ const SignUp: React.FC = () => {
         </div>
 
         <Button
+          id="sign-up-button"
           disabled={loading}
           className="w-full h-12 mt-6 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-xl font-semibold shadow-lg shadow-black/20 dark:shadow-white/10"
         >
