@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { cn, validateContact } from '@/lib/utils';
+import { cn, validateInput } from '@/lib/utils';
 import { auth, db } from '@/firebase';
 import { signOut, deleteUser, updateProfile } from 'firebase/auth';
 import { doc, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -56,7 +56,7 @@ export function AccountSettings() {
      const user = auth.currentUser;
      if (!user) return;
      
-     const validationError = validateContact(contactInputValue, contactTypeToAdd);
+     const validationError = validateInput(contactInputValue, contactTypeToAdd);
      if (validationError) {
         return notify(validationError, "error");
      }

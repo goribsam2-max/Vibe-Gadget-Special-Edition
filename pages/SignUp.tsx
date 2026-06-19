@@ -13,7 +13,7 @@ import { AuthInputs } from "../components/AuthInputs";
 import { VibeMascot, MascotState } from "../components/ui/VibeMascot";
 import { PasswordStrength } from "../components/ui/PasswordStrength";
 import SEO from "../components/SEO";
-import { validateContact } from "../lib/utils";
+import { validateInput } from "../lib/utils";
 
 const SignUp: React.FC = () => {
   const [name, setName] = useState("");
@@ -49,16 +49,23 @@ const SignUp: React.FC = () => {
        return notify("You are doing this too often. Please try again later.", "error");
     }
 
+    if (!name.trim()) return notify("Please enter your name", "error");
+    const nameError = validateInput(name, 'name');
+    if (nameError) return notify(nameError, 'error');
+
     if (!agree)
       return notify("Please agree to the Terms & Conditions", "error");
 
     if (authType === "email" && email !== "admin@vibe.shop") {
-      const error = validateContact(email, 'email');
+      const error = validateInput(email, 'email');
       if (error) return notify(error, "error");
     } else if (authType === "phone") {
-      const error = validateContact(phoneNumber, 'phone');
+      const error = validateInput(phoneNumber, 'phone');
       if (error) return notify(error, "error");
     }
+
+    const passError = validateInput(password, 'password');
+    if (passError) return notify(passError, 'error');
 
     const hasLower = /[a-z]/.test(password);
     const hasUpper = /[A-Z]/.test(password);

@@ -10,7 +10,7 @@ import { AuthLayout } from "../components/AuthLayout";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { validateContact } from "../lib/utils";
+import { validateInput } from "../lib/utils";
 
 const ForgotPassword: React.FC = () => {
   const [resetEmail, setResetEmail] = useState("");
@@ -29,7 +29,7 @@ const ForgotPassword: React.FC = () => {
     
     // Only validate if it's not the admin
     if (resetEmail !== "admin@vibe.shop") {
-      const error = validateContact(resetEmail, type);
+      const error = validateInput(resetEmail, type);
       if (error) return notify(error, "error");
     }
 

@@ -12,7 +12,7 @@ import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { AuthInputs } from "../components/AuthInputs";
 import { VibeMascot, MascotState } from "../components/ui/VibeMascot";
 import SEO from "../components/SEO";
-import { validateContact } from "../lib/utils";
+import { validateInput } from "../lib/utils";
 
 const SignIn: React.FC = () => {
   const [authType, setAuthType] = useState<"email" | "phone">("email");
@@ -48,12 +48,16 @@ const SignIn: React.FC = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (authType === "email" && email !== "admin@vibe.shop") {
-      const error = validateContact(email, 'email');
+      const error = validateInput(email, 'email');
       if (error) return notify(error, "error");
     } else if (authType === "phone") {
-      const error = validateContact(phoneNumber, 'phone');
+      const error = validateInput(phoneNumber, 'phone');
       if (error) return notify(error, "error");
     }
+    
+    // Also validate password to catch generic bots trying dictionary attacks
+    const passError = validateInput(password, 'password');
+    if (passError) return notify(passError, "error");
 
     setLoading(true);
     let authEmail = getAuthEmail();
