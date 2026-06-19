@@ -74,17 +74,17 @@ const SignUp: React.FC = () => {
     if (authType === "email" && email !== "admin@vibe.shop") {
       const error = validateContact(email, 'email');
       if (error) return notify(error, "error");
-      
-      const hasLower = /[a-z]/.test(password);
-      const hasUpper = /[A-Z]/.test(password);
-      const hasNumber = /[0-9]/.test(password);
-      const hasSpecial = /[^A-Za-z0-9]/.test(password);
-      if (password.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
-         return notify("Please ensure your password meets all strength requirements.", "error");
-      }
     } else if (authType === "phone") {
       const error = validateContact(phoneNumber, 'phone');
       if (error) return notify(error, "error");
+    }
+
+    const hasLower = /[a-z]/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+    if (password.length < 8 || !hasLower || !hasUpper || !hasNumber || !hasSpecial) {
+       return notify("Please ensure your password meets all strength requirements.", "error");
     }
 
     setLoading(true);
@@ -97,8 +97,9 @@ const SignUp: React.FC = () => {
         
         sessionStorage.setItem('signup_name', name);
         sessionStorage.setItem('signup_phone', formattedPhone);
+        sessionStorage.setItem('signup_password', password);
         
-        notify("OTP has been sent to your phone number", "success");
+        notify("OTP has been sent via SMS to your phone number", "success");
         navigate("/verify");
       } else {
         // Email flow
@@ -201,41 +202,39 @@ const SignUp: React.FC = () => {
             />
           </div>
 
-          {authType === "email" && (
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                Password
-              </label>
-              <div className="relative h-max">
-                <Input
-                  placeholder="At least 8 characters"
-                  className="peer ps-10 pe-10 h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setMascotFocus('password')}
-                  onBlur={() => setMascotFocus('idle')}
-                  minLength={8}
-                  required
-                />
-                <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3.5 peer-disabled:opacity-50">
-                  <Lock className="size-4" aria-hidden="true" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
-                  onFocus={() => setMascotFocus('password')}
-                >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+              Password
+            </label>
+            <div className="relative h-max">
+              <Input
+                placeholder="At least 8 characters"
+                className="peer ps-10 pe-10 h-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 rounded-xl"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setMascotFocus('password')}
+                onBlur={() => setMascotFocus('idle')}
+                minLength={8}
+                required
+              />
+              <div className="text-muted-foreground pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3.5 peer-disabled:opacity-50">
+                <Lock className="size-4" aria-hidden="true" />
               </div>
-              
-              {(password.length > 0 || mascotFocus === 'password') && (
-                 <PasswordStrength password={password} />
-              )}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
+                onFocus={() => setMascotFocus('password')}
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
             </div>
-          )}
+            
+            {(password.length > 0 || mascotFocus === 'password') && (
+               <PasswordStrength password={password} />
+            )}
+          </div>
         </div>
 
         <div className="flex items-center space-x-3 pt-2">

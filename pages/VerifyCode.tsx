@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useNotify } from "../components/Notifications";
 import { Loader2 } from "lucide-react";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, EmailAuthProvider, linkWithCredential } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getFriendlyErrorMessage } from "../lib/firebaseErrorMapper";
@@ -42,6 +42,34 @@ const VerifyCode: React.FC = () => {
         await updateProfile(user, { displayName: name });
       }
 
+      // Try to link email credential if password was set
+      const signupPassword = sessionStorage.getItem('signup_password');
+      if (signupPassword && user.phoneNumber) {
+        try {
+           const fakeEmail = `${user.phoneNumber.replace('+', '')}@phone.vibegadget.com`;
+           const cred = EmailAuthProvider.credential(fakeEmail, signupPassword);
+           await linkWithCredential(user, cred);
+           
+           // Keep saved accounts list updated
+           try {
+             const accountsStr = localStorage.getItem("vibe_saved_accounts");
+             let accounts = accountsStr ? JSON.parse(accountsStr) : [];
+             accounts = accounts.filter((a: any) => a.uid !== user.uid);
+             accounts.push({
+                 uid: user.uid,
+                 email: fakeEmail,
+                 password: signupPassword,
+                 displayName: name || user.displayName,
+                 photoURL: user.photoURL || "",
+                 lastPasswordChange: null,
+             });
+             localStorage.setItem("vibe_saved_accounts", JSON.stringify(accounts));
+           } catch (e) {}
+        } catch (linkError) {
+           console.log("Could not link email password:", linkError);
+        }
+      }
+
       // Create or update Firestore profile
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
@@ -65,6 +93,7 @@ const VerifyCode: React.FC = () => {
       // Clear session data
       sessionStorage.removeItem('signup_name');
       sessionStorage.removeItem('signup_phone');
+      sessionStorage.removeItem('signup_password');
       delete window.confirmationResult;
 
       navigate("/");
