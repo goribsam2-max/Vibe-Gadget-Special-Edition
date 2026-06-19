@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword, updateProfile, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { useNotify } from "../components/Notifications";
@@ -14,13 +14,6 @@ import { VibeMascot, MascotState } from "../components/ui/VibeMascot";
 import { PasswordStrength } from "../components/ui/PasswordStrength";
 import SEO from "../components/SEO";
 import { validateContact } from "../lib/utils";
-
-declare global {
-  interface Window {
-    recaptchaVerifier: any;
-    confirmationResult: any;
-  }
-}
 
 const SignUp: React.FC = () => {
   const [name, setName] = useState("");
@@ -44,18 +37,6 @@ const SignUp: React.FC = () => {
   else if (mascotFocus === 'success') mascotState = 'success';
   else if (mascotFocus === 'error') mascotState = 'error';
   const notify = useNotify();
-
-  useEffect(() => {
-    // Initialize recaptcha verifier only once
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response: any) => {
-          // reCAPTCHA solved
-        }
-      });
-    }
-  }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,22 +69,18 @@ const SignUp: React.FC = () => {
     }
 
     setLoading(true);
+    
+    const getAuthEmail = () => {
+      if (authType === "phone") {
+         const cleanPhone = phoneNumber.startsWith("0") ? phoneNumber.substring(1) : phoneNumber;
+         return `${countryCode.replace('+', '')}${cleanPhone}@phone.vibegadget.com`;
+      }
+      return email;
+    };
 
     try {
-      if (authType === "phone") {
-        const formattedPhone = `${countryCode}${phoneNumber.replace(/^0+/, '')}`;
-        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, window.recaptchaVerifier);
-        window.confirmationResult = confirmationResult;
-        
-        sessionStorage.setItem('signup_name', name);
-        sessionStorage.setItem('signup_phone', formattedPhone);
-        sessionStorage.setItem('signup_password', password);
-        
-        notify("OTP has been sent via SMS to your phone number", "success");
-        navigate("/verify");
-      } else {
-        // Email flow
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+        const authEmail = getAuthEmail();
+        const userCred = await createUserWithEmailAndPassword(auth, authEmail, password);
         const user = userCred.user;
         await updateProfile(user, { displayName: name });
 
@@ -113,7 +90,7 @@ const SignUp: React.FC = () => {
             accounts = accounts.filter((a: any) => a.uid !== user.uid);
             accounts.push({
                 uid: user.uid,
-                email: email,
+                email: authEmail,
                 password: password,
                 displayName: name,
                 photoURL: "",
@@ -124,7 +101,7 @@ const SignUp: React.FC = () => {
 
         const userData = {
           uid: user.uid,
-          email: email,
+          email: authEmail,
           displayName: name,
           role: "user",
           isBanned: false,
@@ -139,18 +116,10 @@ const SignUp: React.FC = () => {
         setMascotFocus("success");
         notify("Account created successfully!", "success");
         setTimeout(() => navigate("/region"), 1000);
-      }
     } catch (err: any) {
       console.error("SignUp Error:", err);
       setMascotFocus("error");
       notify(getFriendlyErrorMessage(err) + " (" + err.code + ")", "error");
-      // Reset reCAPTCHA on error so it can be used again
-      if (window.recaptchaVerifier && authType === 'phone') {
-         window.recaptchaVerifier.render().then(function(widgetId: any) {
-             // @ts-ignore
-             grecaptcha.reset(widgetId);
-         });
-      }
     } finally {
       setLoading(false);
     }
@@ -257,7 +226,6 @@ const SignUp: React.FC = () => {
           </label>
         </div>
 
-        <div id="recaptcha-container"></div>
         <Button
           disabled={loading}
           className="w-full h-12 mt-6 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-xl font-semibold shadow-lg shadow-black/20 dark:shadow-white/10"

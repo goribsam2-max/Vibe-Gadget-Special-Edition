@@ -6,6 +6,7 @@ import {
   FacebookAuthProvider,
   OAuthProvider,
   signInWithPopup,
+  signInWithCredential
 } from "firebase/auth";
 import { db, auth } from "../firebase";
 import { useNotify } from "../components/Notifications";
@@ -13,6 +14,29 @@ import { Button } from "../components/ui/button";
 import { AuthLayout, AuthSeparator } from "../components/AuthLayout";
 import Icon from "../components/Icon";
 import { GoogleIcon, AppleIcon, FacebookIcon } from "../components/ui/BrandIcons";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
+
+// To make this work directly with Google without a Firebase popup, you need your own Google Client ID.
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID_HERE";
+
+const GoogleLoginButton = ({ onLogin }: { onLogin: (t: string) => void }) => {
+   const login = useGoogleLogin({
+      onSuccess: tokenResponse => onLogin(tokenResponse.access_token),
+      onError: () => console.log('Login Failed'),
+   });
+   return (
+      <Button 
+        type="button" 
+        variant="outline"
+        size="lg" 
+        className="w-full justify-start px-4 bg-white dark:bg-zinc-900 shadow-sm"
+        onClick={() => login()}
+      >
+        <GoogleIcon className='h-5 w-5 mr-3 text-zinc-900 dark:text-white' />
+        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google</span>
+      </Button>
+   );
+};
 
 const AuthSelector: React.FC = () => {
   const navigate = useNavigate();
@@ -72,6 +96,35 @@ const AuthSelector: React.FC = () => {
     }
   };
 
+  const handleDirectGoogleLogin = async (accessToken: string) => {
+    try {
+       const credential = GoogleAuthProvider.credential(null, accessToken);
+       const result = await signInWithCredential(auth, credential);
+       await captureUserDetails(result.user);
+       
+       let accounts: any[] = [];
+       try {
+         const str = localStorage.getItem("vibe_saved_accounts");
+         if (str) accounts = JSON.parse(str);
+       } catch (e) {}
+       accounts = accounts.filter((a: any) => a.uid !== result.user.uid);
+       accounts.push({
+           uid: result.user.uid,
+           email: result.user.email,
+           password: "",
+           displayName: result.user.displayName || "User",
+           photoURL: result.user.photoURL || "",
+           provider: "google"
+       });
+       localStorage.setItem("vibe_saved_accounts", JSON.stringify(accounts));
+       notify(`Welcome, ${result.user.displayName || "User"}!`, "success");
+       navigate("/");
+    } catch(err: any) {
+       console.error("Direct Google error:", err);
+       notify(err.message, "error");
+    }
+  };
+
   const handleSocialLogin = async (providerName: string, enabled: boolean) => {
     if (!enabled) {
       notify(`${providerName} login is currently disabled by admin.`, "info");
@@ -117,32 +170,39 @@ const AuthSelector: React.FC = () => {
     }
   };
 
+  const finalGoogleClientId = config?.googleClientId || GOOGLE_CLIENT_ID;
+
   return (
-    <AuthLayout
-      title="Sign In or Join Now!"
-      subtitle="Login or create your VibeGadgets account."
-    >
-      <div className="space-y-3">
-        {!config ? (
-          <div className="space-y-3 animate-pulse">
-             <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
-             <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
-             <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
-          </div>
-        ) : (
-          <>
-            {config.googleLogin !== false && (
-              <Button 
-                type="button" 
-                variant="outline"
-                size="lg" 
-                className="w-full justify-start px-4 bg-white dark:bg-zinc-900 shadow-sm"
-                onClick={() => handleSocialLogin("Google", true)}
-              >
-                <GoogleIcon className='h-5 w-5 mr-3 text-zinc-900 dark:text-white' />
-                <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google</span>
-              </Button>
-            )}
+    <GoogleOAuthProvider clientId={finalGoogleClientId || "dummy_id"}>
+      <AuthLayout
+        title="Sign In or Join Now!"
+        subtitle="Login or create your VibeGadgets account."
+      >
+        <div className="space-y-3">
+          {!config ? (
+            <div className="space-y-3 animate-pulse">
+               <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+               <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+               <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 rounded-lg"></div>
+            </div>
+          ) : (
+            <>
+              {config.googleLogin !== false && (
+                (finalGoogleClientId && finalGoogleClientId !== "YOUR_GOOGLE_CLIENT_ID_HERE") ? (
+                  <GoogleLoginButton onLogin={handleDirectGoogleLogin} />
+                ) : (
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    size="lg" 
+                    className="w-full justify-start px-4 bg-white dark:bg-zinc-900 shadow-sm"
+                    onClick={() => handleSocialLogin("Google", true)}
+                  >
+                    <GoogleIcon className='h-5 w-5 mr-3 text-zinc-900 dark:text-white' />
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google (Firebase)</span>
+                  </Button>
+                )
+              )}
             
             {config.facebookLogin && (
               <Button 
@@ -207,6 +267,7 @@ const AuthSelector: React.FC = () => {
         .
       </p>
     </AuthLayout>
+    </GoogleOAuthProvider>
   );
 };
 
