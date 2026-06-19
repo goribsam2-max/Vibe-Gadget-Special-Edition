@@ -14,11 +14,29 @@ import { Button } from "../components/ui/button";
 import { AuthLayout, AuthSeparator } from "../components/AuthLayout";
 import Icon from "../components/Icon";
 import { GoogleIcon, AppleIcon, FacebookIcon } from "../components/ui/BrandIcons";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 
 // To make this work directly with Google without a Firebase popup, you need your own Google Client ID.
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID_HERE";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "50155075863-uj02i6n96ipeqaurkf7au0jnpnse84pd.apps.googleusercontent.com";
 
+const CustomGoogleButton = ({ onLogin }: { onLogin: (accessToken: string) => void }) => {
+   const login = useGoogleLogin({
+      onSuccess: tokenResponse => onLogin(tokenResponse.access_token),
+      onError: () => console.log('Login Failed'),
+   });
+   return (
+      <Button 
+        type="button" 
+        variant="outline"
+        size="lg" 
+        className="w-full justify-start px-4 bg-white dark:bg-zinc-900 shadow-sm"
+        onClick={() => login()}
+      >
+        <GoogleIcon className='h-5 w-5 mr-3 text-zinc-900 dark:text-white' />
+        <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google</span>
+      </Button>
+   );
+};
 
 const AuthSelector: React.FC = () => {
   const navigate = useNavigate();
@@ -78,9 +96,9 @@ const AuthSelector: React.FC = () => {
     }
   };
 
-  const handleDirectGoogleLogin = async (idToken: string) => {
+  const handleDirectGoogleLogin = async (accessToken: string) => {
     try {
-       const credential = GoogleAuthProvider.credential(idToken);
+       const credential = GoogleAuthProvider.credential(null, accessToken);
        const result = await signInWithCredential(auth, credential);
        await captureUserDetails(result.user);
        
@@ -171,17 +189,7 @@ const AuthSelector: React.FC = () => {
             <>
               {config.googleLogin !== false && (
                 (finalGoogleClientId && finalGoogleClientId !== "YOUR_GOOGLE_CLIENT_ID_HERE") ? (
-                  <div className="w-full flex justify-center">
-                    <GoogleLogin 
-                       onSuccess={(cred) => handleDirectGoogleLogin(cred.credential!)}
-                       onError={() => notify("Google login failed", "error")}
-                       useOneTap
-                       theme="outline"
-                       size="large"
-                       text="continue_with"
-                       width="100%"
-                    />
-                  </div>
+                  <CustomGoogleButton onLogin={handleDirectGoogleLogin} />
                 ) : (
                   <Button 
                     type="button" 
@@ -191,7 +199,7 @@ const AuthSelector: React.FC = () => {
                     onClick={() => handleSocialLogin("Google", true)}
                   >
                     <GoogleIcon className='h-5 w-5 mr-3 text-zinc-900 dark:text-white' />
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google (Firebase)</span>
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">Continue with Google</span>
                   </Button>
                 )
               )}
