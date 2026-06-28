@@ -201,6 +201,29 @@ export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const isIslandActive = useIsland();
+  const [cartCount, setCartCount] = React.useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const cartStr = localStorage.getItem('f_cart');
+        let cart = [];
+        try { cart = cartStr && cartStr !== "undefined" ? JSON.parse(cartStr) : []; } catch(e){}
+        if (Array.isArray(cart)) {
+          const validItems = cart.filter(item => item && (item.id || item.productId));
+          const count = validItems.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0);
+          setCartCount(count);
+        } else {
+          setCartCount(0);
+        }
+      } catch (e) {
+        setCartCount(0);
+      }
+    };
+    updateCount();
+    window.addEventListener("update_cart", updateCount);
+    return () => window.removeEventListener("update_cart", updateCount);
+  }, []);
 
   const isAdmin = location.pathname.startsWith("/admin");
   const isAffiliate = location.pathname.startsWith("/affiliate");
@@ -245,7 +268,7 @@ export function Header() {
   let headerBgClass = "bg-transparent border-transparent";
   let isDarkHeaderBg = true;
 
-  const buttonClass = "transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-zinc-900 border-none text-white hover:bg-zinc-800 shadow-sm backdrop-blur-md rounded-full w-10 h-10";
+  const buttonClass = "transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-zinc-100 dark:bg-zinc-800 border-none text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm backdrop-blur-md rounded-full w-10 h-10";
 
   return (
     <header
@@ -319,6 +342,11 @@ export function Header() {
             aria-label="Shopping Cart"
           >
             <ShoppingCart className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#1cdb5e] text-white text-[10px] font-black w-4.5 h-4.5 flex items-center justify-center rounded-full border border-white dark:border-zinc-800 shadow-sm">
+                {cartCount}
+              </span>
+            )}
           </Button>
 
           <div className="flex items-center gap-1 rounded-full p-1.5 bg-transparent shadow-none">
@@ -339,6 +367,20 @@ export function Header() {
         </div>
         <div className={cn("flex items-center gap-2 md:hidden pointer-events-auto transition-all duration-300", isIslandActive ? "opacity-0 scale-95 pointer-events-none" : "opacity-100 scale-100")}>
           <div className="flex items-center gap-1 rounded-full p-1.5 bg-transparent shadow-none">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/cart")}
+              className="relative rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingCart className="w-5 h-5" strokeWidth={2.2} />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-[#1cdb5e] text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-zinc-900 shadow-sm">
+                  {cartCount}
+                </span>
+              )}
+            </Button>
             <AnimatedThemeToggler className="rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 flex text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white" />
             <Button
               variant="ghost"

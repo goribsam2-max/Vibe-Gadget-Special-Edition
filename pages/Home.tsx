@@ -36,6 +36,7 @@ import { Tag, Zap, Crown, Users, Sparkles, Star, Play, MoreHorizontal, ChevronRi
 import { PixelImage } from "../components/ui/PixelImage";
 import { HeroSlider } from "../components/ui/hero-slider";
 import { LogoTimeline, type LogoItem } from "../components/ui/logo-timeline";
+import { Footer } from "../components/Footer";
 
 const BrandIcon = ({ brandName }: { brandName: string }) => {
   return (
@@ -245,7 +246,7 @@ const Home: React.FC<{ userData?: any }> = ({ userData }) => {
   );
 
   return (
-    <div className="relative pt-4 px-5 md:px-12 bg-white dark:bg-[#121212] w-full min-h-screen font-sans pb-[120px] md:pb-4">
+    <div className="relative pt-4 px-5 md:px-12 bg-white dark:bg-[#121212] w-full min-h-screen font-sans pb-0">
       <div className="max-w-[1440px] mx-auto">
       <SEO
         title="Vibe Gadget | Premium AI Gadgets & Accessories Bangladesh"
@@ -659,6 +660,9 @@ const Home: React.FC<{ userData?: any }> = ({ userData }) => {
       )}
 
       <CustomSectionEmbed location="home_bottom" />
+      </div>
+      <div className="w-full">
+        <Footer />
       </div>
     </div>
   );

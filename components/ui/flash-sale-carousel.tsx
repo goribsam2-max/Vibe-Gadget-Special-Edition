@@ -36,14 +36,14 @@ export function FlashSaleCarousel({ items, onItemClick, onSeeAll, timeStatus = "
   }, [emblaApi]);
 
   return (
-    <div className="relative w-full overflow-hidden bg-[#ff0800] py-4 rounded-xl shadow-lg border border-red-500 mb-10 overflow-hidden">
+    <div className="relative w-full overflow-hidden bg-emerald-600 py-4 rounded-xl shadow-lg border border-emerald-500 mb-10 overflow-hidden">
       {/* Background Graphic elements mimicking lighting bolts */}
       <div className="absolute top-0 right-10 w-32 h-[200%] bg-yellow-400 rotate-[35deg] transform -translate-y-1/4 opacity-90 blur-[1px]"></div>
       <div className="absolute top-10 right-0 w-8 h-[200%] bg-white rotate-[35deg] transform -translate-y-1/4 opacity-60 blur-[1px]"></div>
       <div className="absolute bottom-0 right-[40%] w-16 h-[100%] bg-yellow-400 rotate-[-50deg] transform translate-y-1/2 opacity-90 blur-[1px]"></div>
       
       {/* Overlay to dim the background lightning slightly so text is readable */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#ff0800] via-[#ff0800]/90 to-[#ff0800]/50 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-emerald-600/90 to-emerald-600/50 pointer-events-none"></div>
 
       <div className="px-4 relative z-10 flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -60,7 +60,7 @@ export function FlashSaleCarousel({ items, onItemClick, onSeeAll, timeStatus = "
         </div>
         <button
           onClick={onSeeAll}
-          className="border border-white/80 text-white rounded-full px-4 py-1.5 text-sm hover:bg-white hover:text-red-600 transition-colors bg-white/10 backdrop-blur-sm"
+          className="border border-white/80 text-white rounded-full px-4 py-1.5 text-sm hover:bg-white hover:text-emerald-600 transition-colors bg-white/10 backdrop-blur-sm"
         >
           See All
         </button>

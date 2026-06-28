@@ -135,7 +135,7 @@ const MysteryBox: React.FC<{ products: any[] }> = ({ products }) => {
 
                   <div className="relative w-40 h-40 mx-auto mb-6 bg-zinc-50 dark:bg-zinc-800 rounded-2xl p-4 border border-zinc-100 dark:border-zinc-800 shadow-inner group">
                     <img src={revealedProduct.image} alt={revealedProduct.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute -bottom-3 -right-3 bg-red-500 text-white w-12 h-12 rounded-full flex flex-col items-center justify-center font-semibold animate-bounce shadow-lg border-2 border-white rotate-12">
+                    <div className="absolute -bottom-3 -right-3 bg-emerald-500 text-white w-12 h-12 rounded-full flex flex-col items-center justify-center font-semibold animate-bounce shadow-lg border-2 border-white rotate-12">
                       <span className="text-[10px] leading-none">EXTRA</span>
                       <span className="text-xs leading-none">{discount}%</span>
                     </div>

@@ -45,7 +45,8 @@ import {
   Smartphone,
   ShoppingBag,
   Ticket,
-  Copy
+  Copy,
+  QrCode
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -180,6 +181,13 @@ export default function CheckoutPage() {
       if (doc.exists()) setPaymentSettings(doc.data());
     });
 
+    const unsubPayments = onSnapshot(doc(db, "settings", "payments"), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setPaymentSettings((prev: any) => ({...prev, ...data}));
+      }
+    });
+
     const cart = JSON.parse(localStorage.getItem("f_cart") || "[]");
     if (cart.length === 0) {
       navigate("/");
@@ -220,6 +228,7 @@ export default function CheckoutPage() {
     return () => {
       unsubSettings();
       unsubPaymentSettings();
+      unsubPayments();
     };
   }, [navigate]);
 
@@ -452,13 +461,20 @@ export default function CheckoutPage() {
         }
       }
 
-      await sendOrderToTelegram({ ...orderData, id: docRef.id });
+      if (paymentType !== "advance") {
+        await sendOrderToTelegram({ ...orderData, id: docRef.id });
+      }
 
       // Email removed per user request
 
       localStorage.removeItem("f_cart");
       localStorage.setItem("vibe_last_order", Date.now().toString());
-      navigate(`/success?orderId=${docRef.id}`);
+
+      if (paymentType === "advance") {
+        navigate(`/payment/${docRef.id}`);
+      } else {
+        navigate(`/success?orderId=${docRef.id}`);
+      }
     } catch (err: any) {
       notify("Order failed! Please try again.", "error");
     } finally {
@@ -471,12 +487,7 @@ export default function CheckoutPage() {
     if (step === 2) {
       if (paymentType === "cod") return true;
       if (paymentType === "advance") {
-        return (
-          !!bankingMethod &&
-          !!advanceType &&
-          !!bankingAccountName.trim() &&
-          !!bankingTrxId.trim()
-        );
+        return !!advanceType;
       }
       if (paymentType === "vgcoin") {
         return !!advanceType;
@@ -489,7 +500,11 @@ export default function CheckoutPage() {
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep((p) => Math.min(p + 1, 3));
+      if (currentStep === 2 && paymentType === "advance") {
+        placeOrder();
+      } else {
+        setCurrentStep((p) => Math.min(p + 1, 3));
+      }
     } else notify("Please complete the required fields.", "error");
   };
 
@@ -933,128 +948,7 @@ export default function CheckoutPage() {
                         </div>
                       </div>
 
-                      {(advanceType || isForeign) && (
-                        <div className="space-y-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                          <Label className="text-base text-zinc-900 dark:text-zinc-100">
-                            {isForeign ? "Bank Transfer Details" : "Select Provider & Make Payment"}
-                          </Label>
-                          
-                          {isForeign ? (
-                            <div className="flex flex-col gap-3">
-                              {[
-                                { label: "Bank Name", value: settings?.bankName || paymentSettings?.bankName || "Setup in Admin Panel" },
-                                { label: "Account Name", value: settings?.bankAccountName || paymentSettings?.bankAccountName || "Setup in Admin Panel" },
-                                { label: "Account Number", value: settings?.bankAccountNumber || paymentSettings?.bankAccountNumber || "..." },
-                                { label: "Routing Number", value: settings?.bankRoutingNumber || paymentSettings?.bankRoutingNumber || "..." },
-                                { label: "Account Type", value: settings?.bankAccountType || paymentSettings?.bankAccountType || "..." },
-                                { label: "Bank Address", value: settings?.bankAddress || paymentSettings?.bankAddress || "..." }
-                              ].map((item, idx) => (
-                                <div key={idx} className="flex justify-between items-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm">
-                                  <div>
-                                    <div className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">{item.label}</div>
-                                    <div className="font-semibold text-zinc-900 dark:text-zinc-100 mt-1">{item.value}</div>
-                                  </div>
-                                  <Button 
-                                    size="sm" variant="ghost" className="h-8 hover:bg-zinc-200 dark:hover:bg-zinc-700" 
-                                    onClick={() => navigator.clipboard.writeText(item.value)}
-                                  >
-                                    <Copy className="h-4 w-4 mr-1" /> Copy
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="flex gap-4">
-                              <button
-                                onClick={() => setBankingMethod("bkash")}
-                                className={cn(
-                                  "flex-1 py-3 border-2 rounded-xl flex items-center justify-center gap-2 font-bold text-sm",
-                                  bankingMethod === "bkash"
-                                    ? "border-pink-500 text-pink-600 bg-pink-50"
-                                    : "border-zinc-200 text-zinc-500",
-                                )}
-                              >
-                                {settings?.bkashIcon ? <img src={settings.bkashIcon} alt="bKash" className="h-6 object-contain"/> : <Smartphone className="h-6 w-auto" />}
-                                bKash
-                              </button>
-                              <button
-                                onClick={() => setBankingMethod("nagad")}
-                                className={cn(
-                                  "flex-1 py-3 border-2 rounded-xl flex items-center justify-center gap-2 font-bold text-sm",
-                                  bankingMethod === "nagad"
-                                    ? "border-orange-500 text-orange-600 bg-orange-50"
-                                    : "border-zinc-200 text-zinc-500",
-                                )}
-                              >
-                                {settings?.nagadIcon ? <img src={settings.nagadIcon} alt="Nagad" className="h-6 object-contain"/> : <Smartphone className="h-6 w-auto" />}
-                                Nagad
-                              </button>
-                            </div>
-                          )}
 
-                          {(bankingMethod || isForeign) && (
-                            <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 mt-2">
-                              {!isForeign && (
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                  <div>
-                                    <div className="text-[10px] font-bold text-zinc-500">
-                                      Send Money to
-                                    </div>
-                                    <div className="text-sm sm:text-lg font-bold">
-                                      {(bankingMethod === "bkash"
-                                        ? (paymentSettings?.bKashNumber || settings?.bkashNumber)
-                                        : (paymentSettings?.nagadNumber || settings?.nagadNumber)) || "01778953114"}
-                                    </div>
-                                  </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="w-full sm:w-auto text-xs"
-                                    onClick={() =>
-                                      navigator.clipboard.writeText(
-                                        (bankingMethod === "bkash"
-                                          ? (paymentSettings?.bKashNumber || settings?.bkashNumber)
-                                          : (paymentSettings?.nagadNumber || settings?.nagadNumber)) ||
-                                          "01778953114",
-                                      )
-                                    }
-                                  >
-                                    Copy Number
-                                  </Button>
-                                </div>
-                              )}
-                              <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 p-3 rounded-xl text-xs font-bold leading-relaxed">
-                                Please Send Money exactly {formatPrice(advanceType === "full" ? total : deliveryFee)}.
-                                Then enter the details below to verify. {isForeign && "Delivery to your country will take 1-2 months."}
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                <div className="space-y-1">
-                                  <Label>{isForeign ? "Bank Sender Name" : "Sender Name"}</Label>
-                                  <Input
-                                    placeholder="Account name"
-                                    value={bankingAccountName}
-                                    onChange={(e) =>
-                                      setBankingAccountName(e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label>TrxID / Reference (Optional)</Label>
-                                  <Input
-                                    placeholder="9A6GH..."
-                                    value={bankingTrxId}
-                                    onChange={(e) =>
-                                      setBankingTrxId(e.target.value)
-                                    }
-                                    className="text-sm"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
                   )}
                 </CardContent>
@@ -1072,7 +966,7 @@ export default function CheckoutPage() {
                     size="default"
                     className="text-xs sm:text-sm px-4 sm:px-6"
                   >
-                    Review Order
+                    {paymentType === "advance" ? "Checkout" : "Review Order"}
                   </Button>
                 </CardFooter>
               </Card>
@@ -1170,7 +1064,7 @@ export default function CheckoutPage() {
                     size="default"
                     className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 shadow-lg shadow-black/10 dark:shadow-white/10 text-white dark:text-zinc-900 border-0 text-xs sm:text-sm px-4 sm:px-6 flex-1 sm:flex-none"
                   >
-                    <Lock className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> Complete
+                    <Lock className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> {paymentType === 'advance' ? 'Checkout & Pay' : 'Complete Order'}
                   </Button>
                 </CardFooter>
               </Card>

@@ -217,7 +217,7 @@ const Cart: React.FC = () => {
                  {appliedPromo ? (
                     <button 
                        onClick={() => setAppliedPromo(null)}
-                       className="bg-red-500/10 hover:bg-red-500/20 text-red-600 px-6 py-3 rounded-full text-sm font-bold tracking-wide transition-colors whitespace-nowrap overflow-hidden shrink-0"
+                       className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 px-6 py-3 rounded-full text-sm font-bold tracking-wide transition-colors whitespace-nowrap overflow-hidden shrink-0"
                     >
                       Remove
                     </button>
@@ -283,7 +283,7 @@ const Cart: React.FC = () => {
 
             <div className="mt-2 text-center pb-4">
                <button
-                  className="w-full relative overflow-hidden group rounded-full bg-red-500 hover:bg-red-600 text-white transition-all font-bold tracking-wide border-none shadow-xl hover:shadow-2xl py-4 flex items-center justify-center text-lg active:scale-[0.98]"
+                  className="w-full relative overflow-hidden group rounded-full bg-[#1cdb5e] hover:bg-[#17ba4f] text-white transition-all font-bold tracking-wide border-none shadow-xl hover:shadow-2xl py-4 flex items-center justify-center text-lg active:scale-[0.98]"
                   onClick={() => navigate("/checkout")}
                >
                   <span className="relative z-10 flex items-center justify-center">

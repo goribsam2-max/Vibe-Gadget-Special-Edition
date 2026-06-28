@@ -131,12 +131,12 @@ const FlashSaleTimer = ({
   const formatNumber = (num: number) => num.toString().padStart(2, "0");
 
   return (
-    <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-xl p-1 mb-4 shadow-sm relative overflow-hidden">
+    <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-1 mb-4 shadow-sm relative overflow-hidden">
       <div className="absolute top-0 right-10 bottom-0 w-20 bg-white/10 skew-x-12 translate-x-10 pointer-events-none" />
       <div className="border border-white/20 rounded-lg p-3 md:p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="bg-white text-red-600 font-bold px-2 py-0.5 rounded shadow-sm text-[10px] tracking-wider uppercase">
+            <div className="bg-white text-emerald-600 font-bold px-2 py-0.5 rounded shadow-sm text-[10px] tracking-wider uppercase">
               Coin Reward
             </div>
             <span className="text-white font-black text-lg md:text-xl italic tracking-tighter shadow-sm flex items-center">
@@ -158,15 +158,15 @@ const FlashSaleTimer = ({
             Ends in
           </span>
           <div className="flex items-center gap-1.5">
-            <div className="bg-white text-red-600 font-black rounded shadow-md px-2 py-1 text-sm">
+            <div className="bg-white text-emerald-600 font-black rounded shadow-md px-2 py-1 text-sm">
               {formatNumber(timeLeft.hours)}
             </div>
             <span className="text-white font-black">:</span>
-            <div className="bg-white text-red-600 font-black rounded shadow-md px-2 py-1 text-sm">
+            <div className="bg-white text-emerald-600 font-black rounded shadow-md px-2 py-1 text-sm">
               {formatNumber(timeLeft.minutes)}
             </div>
             <span className="text-white font-black">:</span>
-            <div className="bg-white text-red-600 font-black rounded shadow-md px-2 py-1 text-sm bg-red-100 animate-pulse">
+            <div className="bg-white text-emerald-600 font-black rounded shadow-md px-2 py-1 text-sm bg-emerald-50 animate-pulse">
               {formatNumber(timeLeft.seconds)}
             </div>
           </div>
@@ -1427,7 +1427,7 @@ const ProductDetails: React.FC = () => {
               <Button
                 onClick={() => addToCart(true)}
                 size="lg"
-                className="flex-1 rounded-2xl py-6 text-[15px] font-bold shadow-lg shadow-[#ea580c]/20 bg-[#ea580c] hover:bg-orange-700 text-white border-none transition-all active:scale-[0.98]"
+                className="flex-1 rounded-2xl py-6 text-[15px] font-bold shadow-lg shadow-[#1cdb5e]/20 bg-[#1cdb5e] hover:bg-[#17ba4f] text-white border-none transition-all active:scale-[0.98]"
               >
                 Buy Now
               </Button>

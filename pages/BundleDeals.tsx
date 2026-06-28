@@ -84,7 +84,7 @@ export default function BundleDeals() {
         ) : currentBundle.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 <div className="bg-white dark:bg-zinc-900 rounded-[32px] p-6 lg:p-10 border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col gap-6 relative">
-                    <div className="absolute top-0 right-10 -translate-y-1/2 bg-red-500 text-white font-black px-4 py-1.5 rounded-full shadow-lg -rotate-12">
+                    <div className="absolute top-0 right-10 -translate-y-1/2 bg-emerald-500 text-white font-black px-4 py-1.5 rounded-full shadow-lg -rotate-12">
                         SAVE {formatPrice(savings)}
                     </div>
                 

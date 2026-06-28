@@ -35,8 +35,15 @@ const ManageOrders: React.FC = () => {
 
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     try {
+      let updateData: any = { status };
+      if (status === OrderStatus.CANCELLED) {
+        const reason = window.prompt("Reason for rejection:");
+        if (reason === null) return;
+        updateData.rejectReason = reason;
+      }
+      
       const order = orders.find((o) => o.id === orderId);
-      await updateDoc(doc(db, "orders", orderId), { status });
+      await updateDoc(doc(db, "orders", orderId), updateData);
       notify(`Order status: ${status}`, "success");
 
       // Affiliate Commission Logic

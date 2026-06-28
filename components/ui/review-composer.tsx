@@ -4,7 +4,7 @@ import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { uploadToImgbb } from "../../services/imgbb";
 import { useNotify } from "../Notifications";
 import Icon from "../Icon";
-import { Star } from "lucide-react";
+import { Star, ImagePlus } from "lucide-react";
 
 export function ReviewComposer({ productId, product, onReviewAdded }: { productId?: string, product: any, onReviewAdded?: () => void }) {
   const notify = useNotify();
@@ -155,11 +155,7 @@ export function ReviewComposer({ productId, product, onReviewAdded }: { productI
               onClick={() => fileInputRef.current?.click()}
               className="w-9 h-9 flex items-center justify-center text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 rounded-full transition-colors"
             >
-              <svg fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" stroke="currentColor" d="M12 4H19"></path>
-                <path strokeLinecap="round" strokeWidth="2.5" stroke="currentColor" d="M8 20L16 4"></path>
-                <path strokeLinecap="round" strokeWidth="2.5" stroke="currentColor" d="M5 20H12"></path>
-              </svg>
+              <ImagePlus className="w-5 h-5" />
             </button>
           </div>
 

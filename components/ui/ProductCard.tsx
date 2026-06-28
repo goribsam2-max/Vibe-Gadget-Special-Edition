@@ -109,7 +109,7 @@ export const ProductCard = ({ product, index }: { product: Product, index?: numb
 
           {/* Top Left/Right Discount Badge */}
           {hasDiscount && discountPercentage > 0 && (
-            <div className="absolute top-2.5 right-2.5 sm:right-auto sm:left-2.5 bg-red-500 rounded-full px-2 py-1 z-10 shadow-sm flex items-center justify-center">
+            <div className="absolute top-2.5 right-2.5 sm:right-auto sm:left-2.5 bg-[#1cdb5e] rounded-full px-2 py-1 z-10 shadow-sm flex items-center justify-center">
               <span className="text-[10px] sm:text-xs font-bold text-white leading-none">-{discountPercentage}%</span>
             </div>
           )}
@@ -151,8 +151,8 @@ export const ProductCard = ({ product, index }: { product: Product, index?: numb
               </svg>
 
               {/* Price Inner */}
-              <div className="flex items-end justify-center min-w-min pl-1 pr-1.5 pb-1.5 pt-1 relative z-20 bg-white dark:bg-zinc-900 rounded-tl-[15px] max-w-[85%]">
-                <div className="flex flex-row items-center justify-center gap-1.5 bg-[#ea580c] py-1 px-2.5 w-full rounded-full shadow-sm overflow-hidden">
+              <div className="flex flex-row items-center justify-center min-w-min pl-1 pr-1.5 pb-1.5 pt-1 relative z-20 bg-white dark:bg-zinc-900 rounded-tl-[15px] max-w-[85%]">
+                <div className="flex flex-row items-center justify-center gap-1.5 bg-[#1cdb5e] py-1 px-2.5 w-full rounded-full shadow-sm overflow-hidden">
                   <span className="text-[12px] sm:text-[13px] font-black text-white tracking-tight leading-none shrink-0 truncate">
                     {formatPrice(displayPrice)}
                   </span>
@@ -185,7 +185,7 @@ export const ProductCard = ({ product, index }: { product: Product, index?: numb
           {/* If Large, show price here instead of cutout */}
           {isLarge && (
             <div className="flex flex-col items-start mt-2 max-w-full">
-              <div className="flex flex-row items-center justify-start gap-1.5 bg-[#ea580c] py-1.5 px-3 rounded-full shadow-sm max-w-full overflow-hidden">
+              <div className="flex flex-row items-center justify-start gap-1.5 bg-[#1cdb5e] py-1.5 px-3 rounded-full shadow-sm max-w-full overflow-hidden">
                 <span className="text-[14px] md:text-[15px] font-black text-white tracking-tight leading-none shrink-0 truncate">
                   {formatPrice(displayPrice)}
                 </span>

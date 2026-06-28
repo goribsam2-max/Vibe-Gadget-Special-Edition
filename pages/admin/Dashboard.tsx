@@ -81,6 +81,14 @@ const ADMIN_PIN_ITEMS: PinListItem[] = [
     href: 'config'
   },
   {
+    id: 'manage-payment-settings',
+    name: 'Payment & Social',
+    info: 'Manage Bangla QR & Footer',
+    icon: Wallet,
+    pinned: true,
+    href: 'payment-settings'
+  },
+  {
     id: 'manage-payment-gateway',
     name: 'Auto Payment Gateway',
     info: 'bKash/Nagad auto SMS sync setup',

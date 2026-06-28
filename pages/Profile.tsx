@@ -273,7 +273,7 @@ const Profile: React.FC<{ userData: UserProfile | null }> = ({
                       <div className="relative mb-2">
                           <CreditCard className="w-6 h-6 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                           {orders.filter(o => o.status === OrderStatus.PENDING).length > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
+                            <span className="absolute -top-2 -right-2 bg-[#1cdb5e] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
                                 {orders.filter(o => o.status === OrderStatus.PENDING).length}
                             </span>
                           )}
@@ -285,7 +285,7 @@ const Profile: React.FC<{ userData: UserProfile | null }> = ({
                       <div className="relative mb-2">
                           <Truck className="w-6 h-6 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                           {orders.filter(o => o.status === OrderStatus.SHIPPED || o.status === OrderStatus.ON_THE_WAY).length > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
+                            <span className="absolute -top-2 -right-2 bg-[#1cdb5e] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
                                 {orders.filter(o => o.status === OrderStatus.SHIPPED || o.status === OrderStatus.ON_THE_WAY).length}
                             </span>
                           )}
@@ -297,7 +297,7 @@ const Profile: React.FC<{ userData: UserProfile | null }> = ({
                       <div className="relative mb-2">
                           <Package className="w-6 h-6 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                           {orders.filter(o => o.status === OrderStatus.DELIVERED && (Date.now() - ((o as any).updatedAt || o.createdAt)) <= 24 * 60 * 60 * 1000).length > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
+                            <span className="absolute -top-2 -right-2 bg-[#1cdb5e] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
                                 {orders.filter(o => o.status === OrderStatus.DELIVERED && (Date.now() - ((o as any).updatedAt || o.createdAt)) <= 24 * 60 * 60 * 1000).length}
                             </span>
                           )}
@@ -309,7 +309,7 @@ const Profile: React.FC<{ userData: UserProfile | null }> = ({
                       <div className="relative mb-2">
                           <MessageSquareShare className="w-6 h-6 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-200 transition-colors" />
                           {orders.filter(o => o.status === OrderStatus.DELIVERED).length > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
+                            <span className="absolute -top-2 -right-2 bg-[#1cdb5e] text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-white dark:border-[#1e1e1e]">
                                 {orders.filter(o => o.status === OrderStatus.DELIVERED).length}
                             </span>
                           )}

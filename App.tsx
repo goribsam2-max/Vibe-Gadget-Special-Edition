@@ -217,6 +217,7 @@ import Onboarding from './pages/Onboarding';
 import VerifyCode from './pages/VerifyCode';
 import LocationAccess from './pages/LocationAccess';
 import CheckoutPage from './pages/Checkout';
+import PaymentPage from './pages/Payment';
 import OrderSuccess from './pages/OrderSuccess';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
@@ -292,6 +293,7 @@ import ManageChats from './pages/admin/ManageChats';
 import ManageStaff from './pages/admin/ManageStaff';
 import ManageStories from './pages/admin/ManageStories';
 import ManageWithdrawals from './pages/admin/ManageWithdrawals';
+import ManagePayments from './pages/admin/ManagePayments';
 import ManageAffiliateRequests from './pages/admin/ManageAffiliateRequests';
 import ManageOnboardingOffers from './pages/admin/ManageOnboardingOffers';
 import ManageCreatorRequests from './pages/admin/ManageCreatorRequests';
@@ -586,6 +588,7 @@ const AppContent: React.FC = () => {
           <Route path="/product/:id/reviews" element={<PageWrapper><ProductReviews /></PageWrapper>} />
           <Route path="/cart" element={<PageWrapper><Cart /></PageWrapper>} />
           <Route path="/checkout" element={<PageWrapper><CheckoutPage /></PageWrapper>} />
+          <Route path="/payment/:orderId" element={<PageWrapper><PaymentPage /></PageWrapper>} />
           <Route path="/deposit" element={<PageWrapper><Deposit /></PageWrapper>} />
           <Route path="/my-coupons" element={<PageWrapper><MyCoupons /></PageWrapper>} />
           <Route path="/my-coins" element={<PageWrapper><MyCoins /></PageWrapper>} />
@@ -652,6 +655,7 @@ const AppContent: React.FC = () => {
                   <Route path="notifications" element={<PageWrapper><AdminNotifications /></PageWrapper>} />
                   <Route path="banners" element={<PageWrapper><ManageBanners /></PageWrapper>} />
                   <Route path="config" element={<PageWrapper><ManageConfig /></PageWrapper>} />
+                  <Route path="payment-settings" element={<PageWrapper><ManagePayments /></PageWrapper>} />
                   <Route path="custom-sections" element={<PageWrapper><ManageCustomSections /></PageWrapper>} />
                   <Route path="stories" element={<PageWrapper><ManageStories /></PageWrapper>} />
                   <Route path="seo" element={<PageWrapper><ManageSEO /></PageWrapper>} />

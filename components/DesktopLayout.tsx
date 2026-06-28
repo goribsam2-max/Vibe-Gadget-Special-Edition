@@ -9,6 +9,7 @@ import Icon from './Icon';
 import { useTheme } from './ThemeContext';
 import { Header } from './ui/header-3';
 
+
 const DesktopLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,10 +65,10 @@ const DesktopLayout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return (
     <div className="min-h-screen bg-transparent flex flex-col pt-14 md:pt-16">
       <Header />
-      <div className="flex-1 flex w-full">
+      <div className="flex-1 flex w-full flex-col min-h-[calc(100vh-56px)]">
         {/* Main Content Area */}
         <div className={`transition-all duration-300 flex-1 w-full max-w-full ${sidebarOpen ? 'md:pl-64' : ''} lg:max-w-[calc(100vw-80px)] xl:max-w-none bg-transparent`}>
-          <div className="w-full max-w-[1920px] mx-auto pb-0">
+          <div className="w-full max-w-[1920px] mx-auto pb-0 min-h-[70vh]">
             {children}
           </div>
         </div>
