@@ -688,6 +688,7 @@ const AppContent: React.FC = () => {
 };
 
 import { ThemeProvider } from './components/ThemeContext';
+import { LanguageProvider } from './components/LanguageContext';
 import { DynamicIsland } from './components/ui/dynamic-island';
 import { MobileGuard } from './components/MobileGuard';
 import { FloatingChat } from './components/FloatingChat';
@@ -712,24 +713,26 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <DynamicIsland />
-        <MigrationHelper />
-        <Router>
-          <PullToRefresh onRefresh={async () => {
-             await new Promise(r => setTimeout(r, 600));
-             window.location.reload();
-          }}>
-            <AppContent />
-          </PullToRefresh>
-          <NetworkStatus />
-          <OnboardingOffersModal />
-          <CartAbandonmentPopup />
-          <AdManager />
-        </Router>
-      </ToastProvider>
-    </ThemeProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <ToastProvider>
+          <DynamicIsland />
+          <MigrationHelper />
+          <Router>
+            <PullToRefresh onRefresh={async () => {
+               await new Promise(r => setTimeout(r, 600));
+               window.location.reload();
+            }}>
+              <AppContent />
+            </PullToRefresh>
+            <NetworkStatus />
+            <OnboardingOffersModal />
+            <CartAbandonmentPopup />
+            <AdManager />
+          </Router>
+        </ToastProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 };
 

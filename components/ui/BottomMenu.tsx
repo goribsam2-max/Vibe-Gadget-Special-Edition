@@ -23,6 +23,7 @@ import useMeasure from "react-use-measure";
 import { cn } from "../../lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../../components/ThemeContext";
+import { useLanguage } from "../../components/LanguageContext";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../../firebase";
@@ -65,6 +66,7 @@ const BottomMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const { t } = useLanguage();
   
   const [elementRef] = useMeasure();
   const [hiddenRef, hiddenBounds] = useMeasure();
@@ -382,7 +384,7 @@ const BottomMenu = () => {
                   className={cn("relative z-10 transition-colors mb-0.5", isActive ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400")}
                 />
                 <span className={cn("text-[9px] font-semibold z-10 capitalize", isActive ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400")}>
-                  {name}
+                  {t(name)}
                 </span>
               </button>
             );
@@ -407,12 +409,11 @@ const BottomMenu = () => {
                window.dispatchEvent(new CustomEvent('openAccountCenter'));
                setView("default");
             }}
-            className="h-[60px] rounded-full px-1.5 sm:px-2.5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center gap-1.5 sm:gap-2 transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 group"
+            className="w-[60px] h-[60px] rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
           >
-            <div className="w-[44px] h-[44px] rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:bg-indigo-600 transition-colors m-auto flex-shrink-0">
+            <div className="w-[44px] h-[44px] rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-inner hover:bg-indigo-600 transition-colors m-auto flex-shrink-0">
               <ArrowRight className="text-white w-5 h-5" />
             </div>
-            <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mr-1 sm:mr-2 whitespace-nowrap hidden min-[360px]:block">Start</span>
           </button>
         )}
       </div>

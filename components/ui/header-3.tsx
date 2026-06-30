@@ -5,6 +5,7 @@ import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
 import { createPortal } from "react-dom";
 import { useTheme } from "../ThemeContext";
 import { AnimatedThemeToggler } from "./animated-theme-toggler";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import Icon from "../Icon";
 import AccountMenu from "./account-menu";
 import { useIsland } from "./dynamic-island";
@@ -350,6 +351,7 @@ export function Header() {
           </Button>
 
           <div className="flex items-center gap-1 rounded-full p-1.5 bg-transparent shadow-none">
+            <LanguageSwitcher />
             <AnimatedThemeToggler className="rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white" />
             <Button
               variant="ghost"
@@ -381,6 +383,7 @@ export function Header() {
                 </span>
               )}
             </Button>
+            <LanguageSwitcher />
             <AnimatedThemeToggler className="rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 flex text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white" />
             <Button
               variant="ghost"

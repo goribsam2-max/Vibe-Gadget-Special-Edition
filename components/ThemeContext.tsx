@@ -1,34 +1,62 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 
+type ThemeMode = 'light' | 'dark' | 'system';
+
 type ThemeContextType = {
+  theme: ThemeMode;
   isDark: boolean;
-  toggleTheme: (e?: React.MouseEvent | any) => void;
+  setTheme: (mode: ThemeMode) => void;
+  toggleTheme: (e?: React.MouseEvent | any) => void; // Keep for backward compatibility if used directly
 };
 
-const ThemeContext = createContext<ThemeContextType>({ isDark: false, toggleTheme: () => {} });
+const ThemeContext = createContext<ThemeContextType>({ 
+  theme: 'system', 
+  isDark: false, 
+  setTheme: () => {},
+  toggleTheme: () => {} 
+});
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<ThemeMode>('system');
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark') {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
+    const saved = localStorage.getItem('theme') as ThemeMode | null;
+    if (saved) {
+      setThemeState(saved);
     }
   }, []);
 
-  const toggleTheme = useCallback((e?: React.MouseEvent | any) => {
-    const isDarkCurrent = document.documentElement.classList.contains('dark');
-    const newDark = !isDarkCurrent;
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    setIsDark(newDark);
-    document.documentElement.classList.toggle('dark', newDark);
-    localStorage.setItem('theme', newDark ? 'dark' : 'light');
+    const applyTheme = () => {
+      const isDarkMode = theme === 'dark' || (theme === 'system' && mediaQuery.matches);
+      setIsDark(isDarkMode);
+      document.documentElement.classList.toggle('dark', isDarkMode);
+    };
+
+    applyTheme();
+
+    const listener = () => {
+      if (theme === 'system') applyTheme();
+    };
+    mediaQuery.addEventListener('change', listener);
+    return () => mediaQuery.removeEventListener('change', listener);
+  }, [theme]);
+
+  const setTheme = useCallback((mode: ThemeMode) => {
+    setThemeState(mode);
+    localStorage.setItem('theme', mode);
   }, []);
 
-  return <ThemeContext.Provider value={{ isDark, toggleTheme }}>{children}</ThemeContext.Provider>;
+  const toggleTheme = useCallback(() => {
+    setTheme(isDark ? 'light' : 'dark');
+  }, [isDark, setTheme]);
+
+  return <ThemeContext.Provider value={{ theme, isDark, setTheme, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
