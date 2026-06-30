@@ -12,6 +12,8 @@ import { UserProfile } from './types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LumaSpin } from './components/ui/luma-spin';
 import OnboardingOffersModal from './components/OnboardingOffersModal';
+import { CartAbandonmentPopup } from './components/CartAbandonmentPopup';
+import { AdManager } from './components/AdManager';
 
 const SEOProvider = () => {
   useEffect(() => {
@@ -298,6 +300,7 @@ import ManageAffiliateRequests from './pages/admin/ManageAffiliateRequests';
 import ManageOnboardingOffers from './pages/admin/ManageOnboardingOffers';
 import ManageCreatorRequests from './pages/admin/ManageCreatorRequests';
 import ManageAffiliateVideos from './pages/admin/ManageAffiliateVideos';
+import ManageAds from './pages/admin/ManageAds';
 
 import ManageRiders from './pages/admin/ManageRiders';
 
@@ -670,6 +673,7 @@ const AppContent: React.FC = () => {
                   <Route path="onboarding-offers" element={<PageWrapper><ManageOnboardingOffers /></PageWrapper>} />
                   <Route path="creator-requests" element={<PageWrapper><ManageCreatorRequests /></PageWrapper>} />
                   <Route path="affiliate-videos" element={<PageWrapper><ManageAffiliateVideos /></PageWrapper>} />
+                  <Route path="ads" element={<PageWrapper><ManageAds /></PageWrapper>} />
                   <Route path="mock/*" element={<PageWrapper><GenericAdminMock /></PageWrapper>} />
                 </Route>
              </Routes>
@@ -721,6 +725,8 @@ const App: React.FC = () => {
           </PullToRefresh>
           <NetworkStatus />
           <OnboardingOffersModal />
+          <CartAbandonmentPopup />
+          <AdManager />
         </Router>
       </ToastProvider>
     </ThemeProvider>

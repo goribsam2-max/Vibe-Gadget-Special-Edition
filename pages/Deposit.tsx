@@ -3,17 +3,19 @@ import { collection, addDoc, getDoc, doc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { useNotify } from "../components/Notifications";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Copy } from "lucide-react";
+import { Copy, QrCode } from "lucide-react";
 import { sendDepositRequestToTelegram } from "../services/telegram";
 
 const Deposit: React.FC = () => {
   const location = useLocation();
   const [amount, setAmount] = useState<string>("");
   const [trxId, setTrxId] = useState("");
+  const [senderNumber, setSenderNumber] = useState("");
   const [method, setMethod] = useState("bkash");
   const [loading, setLoading] = useState(false);
   const [adminNumbers, setAdminNumbers] = useState({ bkash: "", nagad: "" });
   const [bankSettings, setBankSettings] = useState<any>({});
+  const [paymentSettings, setPaymentSettings] = useState<any>(null);
   
   const notify = useNotify();
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ const Deposit: React.FC = () => {
     }
     if (isForeign) {
       setMethod("bank");
+    } else {
+      setMethod("bangla_qr");
     }
   }, [location.state, isForeign]);
 
@@ -48,6 +52,10 @@ const Deposit: React.FC = () => {
           bankAddress: data.bankAddress,
         });
       }
+      const paySnap = await getDoc(doc(db, "settings", "payments"));
+      if (paySnap.exists()) {
+        setPaymentSettings(paySnap.data());
+      }
     };
     fetchSettings();
   }, []);
@@ -55,6 +63,7 @@ const Deposit: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || (!trxId && !isForeign)) return notify("Please fill all required fields", "error");
+    if (!isForeign && !senderNumber) return notify("Please enter the sender number", "error");
     
     setLoading(true);
     try {
@@ -63,6 +72,7 @@ const Deposit: React.FC = () => {
         userEmail: auth.currentUser?.email,
         amount: Number(amount),
         trxId: trxId || "Bank Transfer",
+        senderNumber: senderNumber || "",
         method,
         status: "pending",
         createdAt: Date.now()
@@ -116,31 +126,58 @@ const Deposit: React.FC = () => {
             </div>
           </div>
         ) : (
-          <>
-            <div className="flex gap-4 mb-6">
-              <button 
-                type="button"
-                onClick={() => setMethod('bkash')}
-                className={`flex-1 py-3 rounded-xl border-2 font-bold ${method === 'bkash' ? 'border-pink-500 text-pink-600 bg-pink-50 dark:bg-pink-900/20' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
-              >
-                bKash
-              </button>
-              <button 
-                type="button"
-                onClick={() => setMethod('nagad')}
-                className={`flex-1 py-3 rounded-xl border-2 font-bold ${method === 'nagad' ? 'border-orange-500 text-orange-600 bg-orange-50 dark:bg-orange-900/20' : 'border-zinc-200 dark:border-zinc-700 text-zinc-500'}`}
-              >
-                Nagad
-              </button>
-            </div>
+          <div className="flex flex-col gap-6 p-6 mb-6 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl items-center md:items-start">
+            {paymentSettings?.banglaQrImage && (
+              <div className="flex flex-col items-center gap-2 shrink-0">
+                <div className="bg-white p-2 rounded-xl shadow-sm border border-zinc-200">
+                  <img src={paymentSettings.banglaQrImage} alt="Bangla QR" className="w-32 h-32 md:w-40 md:h-40 object-contain rounded-lg" />
+                </div>
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Scan to Pay</span>
+              </div>
+            )}
+            <div className="flex flex-col gap-4 w-full">
+              <div>
+                <h3 className="font-bold text-zinc-900 dark:text-white text-base md:text-lg flex items-center gap-2">
+                  <QrCode className="w-5 h-5 text-[#1cdb5e]" /> Bangla QR Payment
+                </h3>
+                <p className="text-xs md:text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+                  We have merged all mobile banking apps to one QR code following Govt regulations. Open your mobile banking app to scan and pay.
+                </p>
+              </div>
 
-            <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-xl mb-6 text-sm text-zinc-700 dark:text-zinc-300">
-              Send money to this {method === 'bkash' ? 'bKash' : 'Nagad'} Number:
-              <div className="text-xl font-bold tracking-widest mt-1 text-zinc-900 dark:text-zinc-100">
-                {method === 'bkash' ? adminNumbers.bkash : adminNumbers.nagad}
+              <div className="space-y-3 pt-4 border-t border-zinc-200 dark:border-zinc-700/50">
+                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">If you cannot scan, manually transfer to:</p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                    <div>
+                      <span className="text-[10px] font-bold text-zinc-500 block">NPSB Transfer</span>
+                      <span className="font-bold text-zinc-900 dark:text-white">{paymentSettings?.npsbNumber || "Not setup"}</span>
+                    </div>
+                    <button 
+                      type="button"
+                      className="flex items-center text-xs h-8 px-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition" 
+                      onClick={() => navigator.clipboard.writeText(paymentSettings?.npsbNumber || "")}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex justify-between items-center bg-white dark:bg-zinc-800 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                    <div>
+                      <span className="text-[10px] font-bold text-zinc-500 block">Pathao Pay</span>
+                      <span className="font-bold text-zinc-900 dark:text-white">{paymentSettings?.pathaoPayNumber || "Not setup"}</span>
+                    </div>
+                    <button 
+                      type="button"
+                      className="flex items-center text-xs h-8 px-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition" 
+                      onClick={() => navigator.clipboard.writeText(paymentSettings?.pathaoPayNumber || "")}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -155,6 +192,19 @@ const Deposit: React.FC = () => {
               placeholder="e.g. 500"
             />
           </div>
+          {!isForeign && (
+            <div>
+              <label className="block text-sm font-semibold mb-2">Sender Number</label>
+              <input 
+                type="text" 
+                required
+                value={senderNumber}
+                onChange={(e) => setSenderNumber(e.target.value)}
+                className="w-full bg-zinc-50 dark:bg-zinc-800 p-4 rounded-2xl text-sm border-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 outline-none"
+                placeholder="e.g. 01700000000"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold mb-2">Transaction ID (TrxID) / Ref {isForeign && "(Optional)"}</label>
             <input 

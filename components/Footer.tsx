@@ -2,24 +2,26 @@ import React, { useEffect, useState } from 'react';
 import { FacebookIcon } from './ui/BrandIcons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { QrCode, CreditCard } from 'lucide-react';
+import { QrCode, CreditCard, ShieldCheck } from 'lucide-react';
 
 export const Footer = () => {
-  const [settings, setSettings] = useState({ facebookUrl: '', tiktokUrl: '' });
+  const [settings, setSettings] = useState<any>({ facebookUrl: '', tiktokUrl: '', footerPaymentLogos: [] });
 
   useEffect(() => {
     getDoc(doc(db, 'settings', 'payments')).then(snap => {
       if (snap.exists()) {
+        const data = snap.data();
         setSettings({
-          facebookUrl: snap.data().facebookUrl || '',
-          tiktokUrl: snap.data().tiktokUrl || ''
+          facebookUrl: data.facebookUrl || '',
+          tiktokUrl: data.tiktokUrl || '',
+          footerPaymentLogos: data.footerPaymentLogos || []
         });
       }
     });
   }, []);
 
   return (
-    <footer className="w-full bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-900 pb-24 md:pb-8 pt-12">
+    <footer className="w-full bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-900 pb-[90px] md:pb-8 pt-12">
       <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-start gap-12">
         
         {/* Brand Side */}
@@ -55,25 +57,32 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Payment Methods */}
+      {/* Payment Methods */}
         <div className="flex flex-col md:items-end gap-5">
-          <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+          <p className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
             <QrCode className="w-4 h-4 text-[#1cdb5e]" /> Accepted Payments
           </p>
-          <div className="flex flex-col md:items-end gap-3 text-left md:text-right">
-            <p className="text-sm text-zinc-500 max-w-sm">
+          <div className="flex flex-col md:items-end gap-3 text-left md:text-right relative">
+            <p className="text-sm text-zinc-500 max-w-sm mb-2">
               We exclusively accept payments via <strong className="text-zinc-900 dark:text-white font-bold">Bangla QR</strong> following Bangladesh Govt rules.
             </p>
-            <div className="flex flex-wrap md:justify-end gap-2 mt-2 w-full max-w-[340px]">
-              {['bKash', 'Nagad', 'Rocket', 'Upay', 'Tap', 'Nexus', 'QCash', 'Pathao Pay', 'IBBL', 'VISA', 'Mastercard', 'Amex'].map((method) => (
-                <div key={method} className="px-3 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-sm flex items-center justify-center min-w-[75px] flex-grow">
-                  <span className="text-[11px] md:text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{method}</span>
+            <div className="flex flex-wrap md:justify-end gap-2 w-full max-w-[380px]">
+              {settings.footerPaymentLogos?.map((method: any, i: number) => (
+                <div key={i} className="px-3 py-3 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-2 min-w-[95px] flex-grow justify-center">
+                  <img src={method.icon} alt={method.name} className="h-5 md:h-6 w-auto object-contain" />
+                  <span className="text-[11px] md:text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{method.name}</span>
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-2 mt-3 bg-[#1cdb5e]/10 px-4 py-2 rounded-full border border-[#1cdb5e]/20">
-               <QrCode className="w-4 h-4 text-[#1cdb5e]" />
-               <span className="text-xs font-black text-[#17ba4f] uppercase tracking-widest">Verified by Bangla QR</span>
+            
+            <div className="flex items-center gap-1.5 mt-1 justify-end text-zinc-500 dark:text-zinc-400">
+               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+               <span className="text-[10px] font-bold uppercase tracking-wider">More BD Banking systems supported</span>
+            </div>
+
+            <div className="flex items-center gap-1.5 mt-2 justify-end opacity-80">
+               <ShieldCheck className="w-3.5 h-3.5 text-[#1cdb5e]" />
+               <span className="text-[10px] font-black text-zinc-500 dark:text-zinc-400 uppercase tracking-widest">Verified by Bangla QR</span>
             </div>
           </div>
         </div>

@@ -118,7 +118,25 @@ const Home: React.FC<{ userData?: any }> = ({ userData }) => {
   const [activeCategoryBanner, setActiveCategoryBanner] = useState(0);
   const [activeBottomBanner, setActiveBottomBanner] = useState(0);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [displayedCount, setDisplayedCount] = useState(8);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [stories, setStories] = useState<any[]>([]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => activeCategory === "All" || p.category === activeCategory);
+  }, [products, activeCategory]);
+
+  useEffect(() => {
+    setDisplayedCount(8);
+  }, [activeCategory]);
+
+  const handleLoadMore = () => {
+    setLoadingMore(true);
+    setTimeout(() => {
+      setDisplayedCount(prev => prev + 8);
+      setLoadingMore(false);
+    }, 800);
+  };
 
   const heroBanners = banners.filter(
     (b) => !b.bannerType || b.bannerType === "hero",
@@ -550,20 +568,37 @@ const Home: React.FC<{ userData?: any }> = ({ userData }) => {
               See All
             </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 lg:gap-8 mb-6">
             {products.length === 0
               ? Array(4)
                   .fill(0)
                   .map((_, i) => <ProductSkeleton key={i} />)
-              : products
-                  .filter(
-                    (p) =>
-                      activeCategory === "All" || p.category === activeCategory,
-                  )
+              : filteredProducts
+                  .slice(0, displayedCount)
                   .map((product, index) => (
                     <ProductCard key={product.id} product={product} index={index} />
                   ))}
           </div>
+          
+          {filteredProducts.length > displayedCount && (
+            <div className="flex justify-center w-full">
+               <button 
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="bg-black dark:bg-white text-white dark:text-black font-bold py-3 px-8 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center min-w-[150px]"
+               >
+                 {loadingMore ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                      className="w-5 h-5 border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black rounded-full"
+                    />
+                 ) : (
+                    "Load More"
+                 )}
+               </button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -333,7 +333,7 @@ const Profile: React.FC<{ userData: UserProfile | null }> = ({
                   </span>
               </div>
               <div className="absolute right-0 bottom-0 h-[120px] w-1/3 pointer-events-none z-10 flex items-end justify-end">
-                  <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Panda1&backgroundColor=transparent&primaryColor=ffffff" alt="Mascot" className="w-24 h-24 object-contain brightness-0 invert drop-shadow-md mr-2 mb-2" />
+                  <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Panda1&backgroundColor=transparent&primaryColor=ffffff" alt="Mascot" className="w-24 h-24 object-contain drop-shadow-md mr-2 mb-2" />
               </div>
               <div className="absolute right-4 top-4 w-12 h-12 rounded-full border-2 border-white/20" />
               <div className="absolute right-12 -bottom-4 w-20 h-20 rounded-full border-2 border-white/20" />

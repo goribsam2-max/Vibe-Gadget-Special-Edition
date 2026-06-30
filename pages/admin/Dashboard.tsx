@@ -193,6 +193,14 @@ const ADMIN_PIN_ITEMS: PinListItem[] = [
     href: 'password-resets'
   },
   {
+    id: 'manage-ads',
+    name: 'Manage Ads',
+    info: 'Video & Photo Popups',
+    icon: Video,
+    pinned: true,
+    href: 'ads'
+  },
+  {
     id: 'manage-affiliate-requests',
     name: 'Affiliate Requests',
     info: 'Pending partners',
@@ -241,9 +249,20 @@ const AdminDashboard: React.FC = () => {
         'manage-users': 'users',
         'manage-coupons': 'coupons',
         'manage-tickets': 'helpdesk',
-        'manage-withdrawals': 'refunds', // closest match to refunds from old map
+        'manage-withdrawals': 'refunds',
         'manage-storefront': 'banners',
-        'manage-stories': 'stories'
+        'manage-stories': 'stories',
+        'manage-ads': 'banners',
+        'manage-config': 'config',
+        'manage-seo': 'config',
+        'manage-payment-settings': 'config',
+        'manage-payment-gateway': 'config',
+        'manage-push-notifications': 'users',
+        'manage-affiliate-requests': 'users',
+        'manage-creator-requests': 'users',
+        'manage-affiliate-videos': 'banners',
+        'manage-riders': 'users',
+        'manage-staff': 'config'
       };
       
       const modId = moduleMap[item.id];

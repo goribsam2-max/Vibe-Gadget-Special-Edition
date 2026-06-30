@@ -252,7 +252,7 @@ const BottomMenu = () => {
   return (
     <div
       ref={containerRef}
-      className={cn("fixed bottom-2 left-5 right-5 z-[100] flex items-end justify-between md:hidden gap-3 pointer-events-none mb-[env(safe-area-inset-bottom)]")}
+      className={cn("fixed bottom-2 left-2 right-2 sm:left-5 sm:right-5 z-[100] flex items-end justify-between md:hidden gap-1.5 sm:gap-3 pointer-events-none mb-[env(safe-area-inset-bottom)]")}
     >
       {/* Hidden for measurement */}
       <div
@@ -349,14 +349,14 @@ const BottomMenu = () => {
       <div className="flex-1 relative pointer-events-auto">
 
         {/* Floating Toolbar */}
-        <div className="w-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 py-1.5 flex items-center justify-around px-2 shadow-2xl relative rounded-full">
+        <div className="w-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 py-1.5 flex items-center justify-around px-1 sm:px-2 shadow-2xl relative rounded-full">
           {MAIN_NAV.map(({ icon: Icon, name }) => {
             const isActive = view === name || (name === 'home' && location.pathname === '/');
             return (
               <button
                 key={name}
                 className={cn(
-                  "relative px-3 py-1 rounded-full transition-all active:scale-95 flex flex-col items-center justify-center gap-[2px] flex-1 max-w-[68px]",
+                  "relative px-1.5 sm:px-3 py-1 rounded-full transition-all active:scale-95 flex flex-col items-center justify-center gap-[2px] flex-1 max-w-[68px]",
                   isActive ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
                 )}
                 onClick={() => {
@@ -407,12 +407,12 @@ const BottomMenu = () => {
                window.dispatchEvent(new CustomEvent('openAccountCenter'));
                setView("default");
             }}
-            className="h-[60px] rounded-full px-2.5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center gap-2 transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 group"
+            className="h-[60px] rounded-full px-1.5 sm:px-2.5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center gap-1.5 sm:gap-2 transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 group"
           >
-            <div className="w-[44px] h-[44px] rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:bg-indigo-600 transition-colors m-auto">
+            <div className="w-[44px] h-[44px] rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-inner group-hover:bg-indigo-600 transition-colors m-auto flex-shrink-0">
               <ArrowRight className="text-white w-5 h-5" />
             </div>
-            <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mr-2 whitespace-nowrap">Start</span>
+            <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mr-1 sm:mr-2 whitespace-nowrap hidden min-[360px]:block">Start</span>
           </button>
         )}
       </div>

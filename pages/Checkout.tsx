@@ -89,16 +89,16 @@ export default function CheckoutPage() {
   // Payment
   const prefMeth = localStorage.getItem("vibe_preferred_payment");
   const defaultBank =
-    prefMeth === "bKash" || prefMeth === "Nagad"
-      ? (prefMeth.toLowerCase() as "bkash" | "nagad")
+    prefMeth === "Bangla QR (NPSB)" || prefMeth === "bKash" || prefMeth === "Nagad"
+      ? "bangla_qr"
       : null;
   const defaultPaymentType =
-    prefMeth === "Cash on Delivery" ? "cod" : defaultBank ? "advance" : "cod";
+    prefMeth === "Cash on Delivery" ? "cod" : prefMeth === "VG Coin" ? "vgcoin" : defaultBank ? "advance" : "cod";
   const [paymentType, setPaymentType] = useState<
     "cod" | "advance" | "vgcoin" | null
   >(() => getSavedState("paymentType", defaultPaymentType));
   const [advanceType, setAdvanceType] = useState<"full" | "delivery" | null>(() => getSavedState("advanceType", null));
-  const [bankingMethod, setBankingMethod] = useState<"bkash" | "nagad" | "bank" | null>(() => getSavedState("bankingMethod", defaultBank));
+  const [bankingMethod, setBankingMethod] = useState<"bangla_qr" | "bank" | null>(() => getSavedState("bankingMethod", defaultBank as any));
   const [bankingAccountName, setBankingAccountName] = useState(() => getSavedState("bankingAccountName", ""));
   const [bankingTrxId, setBankingTrxId] = useState(() => getSavedState("bankingTrxId", ""));
 
@@ -350,9 +350,9 @@ export default function CheckoutPage() {
 
       if (paymentType === "advance") {
         paymentStr =
-          bankingMethod === "bkash"
-            ? "bKash Mobile Banking"
-            : bankingMethod === "nagad" ? "Nagad Mobile Banking" : "Bank Transfer";
+          bankingMethod === "bangla_qr"
+            ? "Bangla QR (NPSB)"
+            : "Bank Transfer";
         paymentOptStr =
           advanceType === "full" ? "Full Payment" : "Delivery Fee Advanced";
         trxStr = bankingTrxId.trim();
@@ -783,7 +783,12 @@ export default function CheckoutPage() {
                     <button
                       onClick={() => {
                         setPaymentType("advance");
-                        if (isForeign) setAdvanceType("full");
+                        if (isForeign) {
+                          setAdvanceType("full");
+                          setBankingMethod("bank");
+                        } else {
+                          setBankingMethod("bangla_qr");
+                        }
                       }}
                       className={cn(
                         "flex flex-col items-center gap-3 p-6 border-2 rounded-2xl transition-colors",
@@ -795,10 +800,10 @@ export default function CheckoutPage() {
                       <Smartphone className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />
                       <div className="text-center">
                         <div className="font-bold text-zinc-900 dark:text-zinc-100">
-                          {isForeign ? "Bank Transfer" : "Mobile Banking"}
+                          {isForeign ? "Bank Transfer" : "Bangla QR (NPSB)"}
                         </div>
                         <div className="text-xs font-semibold text-zinc-500 mt-1">
-                          {isForeign ? "Full Advance (1-2 months delivery)" : "bKash / Nagad"}
+                          {isForeign ? "Full Advance (1-2 months delivery)" : "Pay with any mobile app"}
                         </div>
                       </div>
                     </button>

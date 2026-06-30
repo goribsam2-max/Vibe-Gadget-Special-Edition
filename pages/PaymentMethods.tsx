@@ -11,7 +11,7 @@ const PaymentMethods: React.FC = () => {
   const navigate = useNavigate();
   const notify = useNotify();
   const [selected, setSelected] = useState(
-    localStorage.getItem("vibe_preferred_payment") || "bKash",
+    localStorage.getItem("vibe_preferred_payment") || "Bangla QR (NPSB)",
   );
   const [settings, setSettings] = useState<any>(null);
 
@@ -23,14 +23,15 @@ const PaymentMethods: React.FC = () => {
 
   const methods = [
     {
-      id: "bKash",
-      image: settings?.bkashIcon,
+      id: "Bangla QR (NPSB)",
+      image: settings?.banglaQrIcon,
       FallbackIcon: Smartphone
     },
     {
-      id: "Nagad",
-      image: settings?.nagadIcon,
-      FallbackIcon: Smartphone
+      id: "VG Coin",
+      svg: (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+      ),
     },
     {
       id: "Cash on Delivery",
@@ -60,12 +61,8 @@ const PaymentMethods: React.FC = () => {
             Policy Notice
           </h2>
           <p className="text-xs leading-relaxed text-gray-500 font-medium">
-            Digital payments (bKash/Nagad) help us process your order faster.
-            Use{" "}
-            <span className="text-black dark:text-white font-bold">
-              01778953114
-            </span>{" "}
-            for any manual send-money transactions.
+            Digital payments (Bangla QR) help us process your order faster.
+            Use the provided QR code to complete your transaction seamlessly.
           </p>
         </div>
 
@@ -106,7 +103,7 @@ const PaymentMethods: React.FC = () => {
                   <span className="text-[8px] font-bold text-gray-400  tracking-tight">
                     {m.id === "Cash on Delivery"
                       ? "Doorstep Pay"
-                      : "01778953114"}
+                      : m.id === "Bangla QR (NPSB)" ? "Digital Payment" : "Vibe Gadget Currency"}
                   </span>
                 </div>
               </div>
