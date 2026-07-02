@@ -18,6 +18,7 @@ import { sendOrderToTelegram } from "../services/telegram";
 import { getProductCoinReward } from "../lib/coinRewards";
 import { CustomSectionEmbed } from "../components/CustomSectionEmbed";
 import { useTheme } from "../components/ThemeContext";
+import { useLanguage } from "../components/LanguageContext";
 
 import { Button } from "../components/ui/button";
 import {
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const notify = useNotify();
   const { isDark } = useTheme();
+  const { t } = useLanguage();
 
   const region = localStorage.getItem("user_region") || "BD";
   const isForeign = region === "IN" || region === "PK";
@@ -585,11 +587,11 @@ export default function CheckoutPage() {
                 <CardHeader>
                   <h2 className="text-xl font-bold flex items-center gap-2 text-zinc-900 dark:text-zinc-100">
                     <MapPin className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />{" "}
-                    Shipping Information
+                    {t('Shipping Information') || 'Shipping Information'}
                   </h2>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
-                  {savedAddresses.length > 0 && !isAddingNewAddress && (
+                  {savedAddresses.length > 0 ? (
                     <div className="space-y-3">
                       {savedAddresses.map((addr) => (
                         <div
@@ -632,69 +634,19 @@ export default function CheckoutPage() {
                       <Button
                         variant="outline"
                         className="w-full mt-2 border-dashed"
-                        onClick={() => setIsAddingNewAddress(true)}
+                        onClick={() => navigate('/shipping-address')}
                       >
                         + Add New Address
                       </Button>
                     </div>
-                  )}
-
-                  {(isAddingNewAddress || savedAddresses.length === 0) && (
-                    <div className="flex flex-col gap-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Full Name *</Label>
-                          <Input
-                            placeholder="E.g. John Doe"
-                            value={newAddress.name}
-                            onChange={(e) =>
-                              setNewAddress({
-                                ...newAddress,
-                                name: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Phone *</Label>
-                          <Input
-                            placeholder="01XXXXXXXXX"
-                            value={newAddress.phone}
-                            onChange={(e) =>
-                              setNewAddress({
-                                ...newAddress,
-                                phone: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Detailed Address *</Label>
-                        <Input
-                          placeholder="House, Road, Block, Area..."
-                          value={newAddress.address}
-                          onChange={(e) =>
-                            setNewAddress({
-                              ...newAddress,
-                              address: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleSaveAddress}>
-                          Save Address
-                        </Button>
-                        {savedAddresses.length > 0 && (
-                          <Button
-                            variant="ghost"
-                            onClick={() => setIsAddingNewAddress(false)}
-                          >
-                            Cancel
-                          </Button>
-                        )}
-                      </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl">
+                      <MapPin className="w-10 h-10 text-zinc-400 mb-3" />
+                      <h3 className="font-bold text-zinc-900 dark:text-zinc-100 mb-1">{t('No Address Found') || 'No Address Found'}</h3>
+                      <p className="text-sm text-zinc-500 mb-4">{t('Please add a shipping address to continue.') || 'Please add a shipping address to continue.'}</p>
+                      <Button onClick={() => navigate('/shipping-address')}>
+                        {t('Add Shipping Address') || 'Add Shipping Address'}
+                      </Button>
                     </div>
                   )}
 
@@ -831,6 +783,29 @@ export default function CheckoutPage() {
                     </button>
                   </div>
 
+                  {paymentType === "cod" && (
+                    <div className="flex flex-col gap-4 mt-4 border-2 border-[#00b2d6]/30 bg-[#f4fbff] dark:bg-[#00b2d6]/5 dark:border-[#00b2d6]/20 p-5 rounded-2xl animate-in fade-in slide-in-from-top-4">
+                      <div className="flex items-center gap-2 mb-1 text-[#00b2d6]">
+                        <div className="bg-[#00b2d6] text-white rounded-full p-0.5">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                        <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                           <Truck className="h-5 w-5 text-[#ce1274]" />
+                           Cash on Delivery
+                        </span>
+                      </div>
+                      <div className="space-y-3">
+                         <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">Cash on Delivery (COD)</p>
+                         <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+                           <li>Upon delivery to your address, you may pay in cash directly to our courier.</li>
+                           <li>Ensure your delivery status is marked as 'Out for Delivery' before agreeing to accept the parcel.</li>
+                           <li>Verify that the airway bill clearly indicates the parcel is from VibeGadget before receiving it.</li>
+                           <li>Before handing over payment to the courier, double-check the order number, sender information, and tracking number on the parcel for accuracy.</li>
+                         </ul>
+                      </div>
+                    </div>
+                  )}
+
                   {paymentType === "vgcoin" && (
                     <div className="flex flex-col gap-6 mt-4 border-t border-amber-100 dark:border-amber-900/30 pt-6 animate-in fade-in slide-in-from-top-4">
                       <div className="space-y-4">
@@ -905,6 +880,29 @@ export default function CheckoutPage() {
 
                   {paymentType === "advance" && (
                     <div className="flex flex-col gap-6 mt-4 border-t border-zinc-100 dark:border-zinc-800 pt-6 animate-in fade-in slide-in-from-top-4">
+                      
+                      {/* Advance Details Info */}
+                      <div className="flex flex-col gap-4 border-2 border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 dark:border-indigo-500/20 p-5 rounded-2xl">
+                        <div className="flex items-center gap-2 mb-1 text-indigo-600 dark:text-indigo-400">
+                          <div className="bg-indigo-600 dark:bg-indigo-500 text-white rounded-full p-0.5">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                          </div>
+                          <span className="font-bold text-lg text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                             <Smartphone className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                             Advance Payment
+                          </span>
+                        </div>
+                        <div className="space-y-3">
+                           <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">Advance Digital Payment</p>
+                           <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-700 dark:text-zinc-300">
+                             <li>You can securely pay via Bangla QR using any supported banking app.</li>
+                             <li>Paying advance confirms your order immediately for faster processing.</li>
+                             <li>Please do not share your bank OTP or PIN with anyone.</li>
+                             <li>Save your transaction ID or take a screenshot for your reference.</li>
+                           </ul>
+                        </div>
+                      </div>
+
                       <div className="space-y-4">
                         <Label className="text-base text-zinc-900 dark:text-zinc-100">
                           Select Amount to Pay Now
@@ -1015,7 +1013,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-zinc-500">Payment Details</Label>
+                      <Label className="text-zinc-500">{t('Payment Details') || 'Payment Details'}</Label>
                       <div className="p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl border border-zinc-100 dark:border-zinc-800 text-sm font-medium">
                         <p className="font-bold text-zinc-900 dark:text-zinc-100">
                           {paymentType === "cod"
@@ -1069,7 +1067,7 @@ export default function CheckoutPage() {
                     size="default"
                     className="bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 shadow-lg shadow-black/10 dark:shadow-white/10 text-white dark:text-zinc-900 border-0 text-xs sm:text-sm px-4 sm:px-6 flex-1 sm:flex-none"
                   >
-                    <Lock className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> {paymentType === 'advance' ? 'Checkout & Pay' : 'Complete Order'}
+                    <Lock className="mr-2 h-3 w-3 sm:h-4 sm:w-4" /> {paymentType === 'advance' ? (t('Checkout & Pay') || 'Checkout & Pay') : (t('Place Order') || 'Complete Order')}
                   </Button>
                 </CardFooter>
               </Card>
@@ -1081,8 +1079,7 @@ export default function CheckoutPage() {
             <Card className="rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
               <CardHeader className="bg-zinc-50/50 dark:bg-zinc-800/20 border-b border-zinc-100 dark:border-zinc-800 pb-5">
                 <CardTitle className="flex items-center gap-2">
-                  <ShoppingBag className="text-zinc-500 w-5 h-5" /> Order
-                  Summary
+                  <ShoppingBag className="text-zinc-500 w-5 h-5" /> {t('Order Summary') || 'Order Summary'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-6 space-y-5">
@@ -1285,7 +1282,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-3 pt-4 border-t border-zinc-100 dark:border-zinc-800 text-sm font-medium">
                   <div className="flex justify-between text-zinc-500">
-                    <span>Subtotal</span>
+                    <span>{t('Subtotal') || 'Subtotal'}</span>
                     <span className="text-zinc-900 dark:text-zinc-100">
                       {formatPrice(subtotal)}
                     </span>
@@ -1297,13 +1294,13 @@ export default function CheckoutPage() {
                     </div>
                   )}
                   <div className="flex justify-between text-zinc-500">
-                    <span>Shipping</span>
+                    <span>{t('Delivery Fee') || 'Shipping'}</span>
                     <span className="text-zinc-900 dark:text-zinc-100">
                       {formatPrice(deliveryFee)}
                     </span>
                   </div>
                   <div className="flex justify-between items-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                    <span className="text-zinc-500 font-bold">Total</span>
+                    <span className="text-zinc-500 font-bold">{t('Total') || 'Total'}</span>
                     <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
                       {formatPrice(total)}
                     </span>

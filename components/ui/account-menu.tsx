@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { triggerHaptic } from "@/lib/haptics";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,7 +65,7 @@ export default function AccountMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className={triggerClass}>
+        <Button variant="outline" className={triggerClass} onClick={() => triggerHaptic()}>
           {user ? (
             <div className="relative w-fit shrink-0 p-[2px]">
               <Avatar className="w-8 h-8 md:w-7 md:h-7 rounded-full border-2 border-green-500 shrink-0">
@@ -109,7 +110,10 @@ export default function AccountMenu({
               Welcome
             </DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigate("/auth-selector")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/auth-selector");
+              }}
               className="flex items-center gap-2 py-2 px-2 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               <span className="flex-1 font-medium">Sign In / Sign Up</span>
@@ -121,28 +125,40 @@ export default function AccountMenu({
               My Account
             </DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigate("/profile")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/profile");
+              }}
               className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
             >
               <User className="w-4 h-4" />
               <span className="flex-1">Profile</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => navigate("/orders")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/orders");
+              }}
               className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
             >
               <ShoppingBag className="w-4 h-4" />
               <span className="flex-1">My Orders</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => navigate("/wishlist")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/wishlist");
+              }}
               className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
             >
               <Heart className="w-4 h-4" />
               <span className="flex-1">Wishlist</span>
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => navigate("/notifications")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/notifications");
+              }}
               className="flex items-center gap-2 rounded-lg py-2 px-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
             >
               <Bell className="w-4 h-4" />
@@ -152,7 +168,10 @@ export default function AccountMenu({
             <DropdownMenuSeparator className="my-1 border-zinc-100 dark:border-zinc-800" />
 
             <DropdownMenuItem
-              onClick={handleLogout}
+              onClick={() => {
+                triggerHaptic();
+                handleLogout();
+              }}
               className="flex items-center gap-2 py-2 px-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 cursor-pointer"
             >
               <LogOut className="w-4 h-4" />

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useLanguage } from "../LanguageContext"
+import { triggerHaptic } from "@/lib/haptics"
 
 export const LanguageSwitcher = ({ className }: { className?: string }) => {
   const { language, setLanguage } = useLanguage();
@@ -21,7 +22,10 @@ export const LanguageSwitcher = ({ className }: { className?: string }) => {
   return (
     <div className={cn("relative", className)} ref={containerRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          triggerHaptic();
+          setIsOpen(!isOpen);
+        }}
         className="flex items-center justify-center p-2 rounded-full outline-none focus:outline-none cursor-pointer text-sm font-bold w-9 h-9 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300 transition-colors uppercase"
         type="button"
       >
@@ -44,6 +48,7 @@ export const LanguageSwitcher = ({ className }: { className?: string }) => {
               <button
                 key={item.id}
                 onClick={() => {
+                  triggerHaptic();
                   setLanguage(item.id as any);
                   setIsOpen(false);
                 }}

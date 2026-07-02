@@ -28,6 +28,7 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../../firebase";
 import { ArrowRight } from "lucide-react";
+import { triggerHaptic } from "../../lib/haptics";
 
 const MAIN_NAV = [
   { icon: Home01Icon, name: "home" },
@@ -98,11 +99,13 @@ const BottomMenu = () => {
   }, []);
 
   const handleNavigate = (path: string) => {
+    triggerHaptic();
     navigate(path);
     setView("default");
   };
 
   const handleLogout = async () => {
+    triggerHaptic();
     try {
       await signOut(auth);
       navigate("/");
@@ -222,7 +225,7 @@ const BottomMenu = () => {
         return (
           <div className="flex items-center justify-between gap-2 min-w-[280px] p-[6px]">
             <button
-              onClick={() => { if (isDark) toggleTheme(); setView("default"); }}
+              onClick={() => { triggerHaptic(); if (isDark) toggleTheme(); setView("default"); }}
               className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 transition-all font-medium text-[13px] ${
                 !isDark
                   ? "bg-zinc-100 text-zinc-900 border border-zinc-200"
@@ -233,7 +236,7 @@ const BottomMenu = () => {
               <span>Light</span>
             </button>
             <button
-              onClick={() => { if (!isDark) toggleTheme(); setView("default"); }}
+              onClick={() => { triggerHaptic(); if (!isDark) toggleTheme(); setView("default"); }}
               className={`flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 transition-all font-medium text-[13px] ${
                 isDark
                   ? "bg-zinc-800 text-zinc-100 border border-zinc-700"
@@ -261,7 +264,7 @@ const BottomMenu = () => {
         ref={hiddenRef}
         className="absolute left-[-9999px] top-[-9999px] invisible pointer-events-none"
       >
-        <div className="rounded-[32px] bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border border-zinc-200 dark:border-zinc-800 py-1">
+        <div className="rounded-[32px] bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 py-1">
           {content}
         </div>
       </div>
@@ -351,7 +354,7 @@ const BottomMenu = () => {
       <div className="flex-1 relative pointer-events-auto">
 
         {/* Floating Toolbar */}
-        <div className="w-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 py-1.5 flex items-center justify-around px-1 sm:px-2 shadow-2xl relative rounded-full">
+        <div className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 py-1.5 flex items-center justify-around px-1 sm:px-2 shadow-2xl relative rounded-full">
           {MAIN_NAV.map(({ icon: Icon, name }) => {
             const isActive = view === name || (name === 'home' && location.pathname === '/');
             return (
@@ -362,6 +365,7 @@ const BottomMenu = () => {
                   isActive ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300"
                 )}
                 onClick={() => {
+                  triggerHaptic();
                   if (name === 'cart') {
                     navigate('/cart');
                     setView("default");
@@ -396,8 +400,11 @@ const BottomMenu = () => {
       <div className="pointer-events-auto">
         {user ? (
           <button
-            onClick={() => setView(view === "profile" ? "default" : "profile")}
-            className="w-[60px] h-[60px] rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center transition-transform active:scale-95"
+            onClick={() => {
+               triggerHaptic();
+               setView(view === "profile" ? "default" : "profile");
+            }}
+            className="w-[60px] h-[60px] rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center transition-transform active:scale-95"
           >
             <div className="w-[44px] h-[44px] rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center m-auto">
                <HugeiconsIcon icon={UserEdit01Icon} size={22} className={cn(view === "profile" ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400")} />
@@ -406,10 +413,11 @@ const BottomMenu = () => {
         ) : (
           <button
             onClick={() => {
+               triggerHaptic();
                window.dispatchEvent(new CustomEvent('openAccountCenter'));
                setView("default");
             }}
-            className="w-[60px] h-[60px] rounded-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
+            className="w-[60px] h-[60px] rounded-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl flex items-center justify-center transition-transform active:scale-95 hover:bg-zinc-50 dark:hover:bg-zinc-800/80"
           >
             <div className="w-[44px] h-[44px] rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-inner hover:bg-indigo-600 transition-colors m-auto flex-shrink-0">
               <ArrowRight className="text-white w-5 h-5" />

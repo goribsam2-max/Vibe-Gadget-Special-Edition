@@ -171,12 +171,23 @@ export function TourProvider({
 
   useEffect(() => {
     updateElementPosition()
-    window.addEventListener("resize", updateElementPosition)
-    window.addEventListener("scroll", updateElementPosition)
+    let ticking = false;
+    const handleScrollOrResize = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateElementPosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("resize", handleScrollOrResize, { passive: true })
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true })
 
     return () => {
-      window.removeEventListener("resize", updateElementPosition)
-      window.removeEventListener("scroll", updateElementPosition)
+      window.removeEventListener("resize", handleScrollOrResize)
+      window.removeEventListener("scroll", handleScrollOrResize)
     }
   }, [updateElementPosition])
 

@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
+import { triggerHaptic } from "../../lib/haptics";
 import { Modal } from "@/components/ui/modal";
 
 type LinkItem = {
@@ -269,7 +270,7 @@ export function Header() {
   let headerBgClass = "bg-transparent border-transparent";
   let isDarkHeaderBg = true;
 
-  const buttonClass = "transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-zinc-100 dark:bg-zinc-800 border-none text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm backdrop-blur-md rounded-full w-10 h-10";
+  const buttonClass = "transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-zinc-100 dark:bg-zinc-800 border-none text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 shadow-sm rounded-full w-10 h-10";
 
   return (
     <header
@@ -286,6 +287,7 @@ export function Header() {
             size="icon"
             variant="ghost"
             onClick={() => {
+              triggerHaptic();
               if (location.pathname === '/withdraw') {
                   navigate('/affiliate');
               } else if (isInnerPage) {
@@ -320,7 +322,10 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/search")}
+            onClick={() => {
+              triggerHaptic();
+              navigate("/search");
+            }}
             className={buttonClass}
             aria-label="Search"
           >
@@ -329,7 +334,10 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/wishlist")}
+            onClick={() => {
+              triggerHaptic();
+              navigate("/wishlist");
+            }}
             className={buttonClass}
             aria-label="Wishlist"
           >
@@ -338,7 +346,10 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/cart")}
+            onClick={() => {
+              triggerHaptic();
+              navigate("/cart");
+            }}
             className={cn("relative", buttonClass)}
             aria-label="Shopping Cart"
           >
@@ -356,7 +367,10 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/notifications")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/notifications");
+              }}
               className="rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               aria-label="Notifications"
             >
@@ -372,7 +386,10 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/cart")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/cart");
+              }}
               className="relative rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               aria-label="Shopping Cart"
             >
@@ -388,7 +405,10 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/notifications")}
+              onClick={() => {
+                triggerHaptic();
+                navigate("/notifications");
+              }}
               className="hidden sm:flex rounded-full shadow-none border-none bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 w-9 h-9 text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white"
               aria-label="Notifications"
             >
@@ -416,7 +436,10 @@ export function Header() {
                 key={link.title}
                 {...link}
                 className="mx-2"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  triggerHaptic();
+                  setOpen(false);
+                }}
               />
             ))}
 
@@ -430,7 +453,10 @@ export function Header() {
                     <NavLink
                       key={i}
                       to={`/search?q=${encodeURIComponent(cat)}`}
-                      onClick={() => setOpen(false)}
+                      onClick={() => {
+                        triggerHaptic();
+                        setOpen(false);
+                      }}
                       className="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
                     >
                       {cat}
@@ -584,18 +610,23 @@ function ListItem({
 function useScroll(threshold: number) {
   const [scrolled, setScrolled] = React.useState(false);
 
-  const onScroll = React.useCallback(() => {
-    setScrolled(window.scrollY > threshold);
-  }, [threshold]);
-
   React.useEffect(() => {
-    window.addEventListener("scroll", onScroll);
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > threshold);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll(); // Initial check
+
     return () => window.removeEventListener("scroll", onScroll);
-  }, [onScroll]);
-
-  React.useEffect(() => {
-    onScroll();
-  }, [onScroll]);
+  }, [threshold]);
 
   return scrolled;
 }

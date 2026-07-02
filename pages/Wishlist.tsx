@@ -15,12 +15,14 @@ import Icon from "../components/Icon";
 import { CustomSectionEmbed } from "../components/CustomSectionEmbed";
 import { useRegion } from "../components/RegionContext";
 import { useTheme } from "../components/ThemeContext";
+import { useLanguage } from "../components/LanguageContext";
 
 const Wishlist: React.FC = () => {
   const navigate = useNavigate();
   const notify = useNotify();
   const { isDark, toggleTheme } = useTheme();
   const { formatPrice } = useRegion();
+  const { t } = useLanguage();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,16 +77,16 @@ const Wishlist: React.FC = () => {
             />
           </div>
           <h2 className="text-xl font-semibold mb-2 tracking-tight text-zinc-900 dark:text-zinc-100">
-            Sign In Required
+            {t('Sign In Required') || 'Sign In Required'}
           </h2>
           <p className="text-sm font-medium text-zinc-500 mb-10 max-w-xs mx-auto">
-            Please login to view and manage your saved tech essentials.
+            {t('Please login to view and manage your saved tech essentials.') || 'Please login to view and manage your saved tech essentials.'}
           </p>
           <button
             onClick={() => navigate("/auth-selector")}
             className="px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center space-x-3 mx-auto"
           >
-            <span>Sign In Now</span>
+            <span>{t('Sign In Now') || 'Sign In Now'}</span>
           </button>
         </div>
       ) : items.length === 0 ? (
@@ -99,12 +101,12 @@ const Wishlist: React.FC = () => {
               className="text-2xl text-zinc-400 dark:text-zinc-500"
             />
           </div>
-          <p className="text-sm font-medium text-zinc-500">Nothing saved yet</p>
+          <p className="text-sm font-medium text-zinc-500">{t('Nothing saved yet') || 'Nothing saved yet'}</p>
           <button
             onClick={() => navigate("/")}
             className="mt-8 px-8 py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-semibold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            Start Exploring
+            {t('Start Exploring') || 'Start Exploring'}
           </button>
         </motion.div>
       ) : (
@@ -122,7 +124,7 @@ const Wishlist: React.FC = () => {
               >
                 <div className="aspect-[4/5] flex items-center justify-center bg-zinc-50 dark:bg-zinc-800/50 rounded-xl mb-4 overflow-hidden relative transition-all duration-300">
                   <img
-                    src={item.image}
+                    src={item.image || (item.images && item.images[0]) || "https://via.placeholder.com/150"}
                     className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500 ease-out mix-blend-multiply dark:mix-blend-normal"
                     alt={item.name}
                   />
@@ -135,10 +137,10 @@ const Wishlist: React.FC = () => {
                 </div>
                 <div className="px-1 pb-1">
                   <h4 className="font-semibold text-xs md:text-sm truncate mb-1 Tracking-tight text-zinc-900 dark:text-zinc-100">
-                    {item.name}
+                    {item.name || "Unknown Product"}
                   </h4>
                   <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-400">
-                    {formatPrice(item.price)}
+                    {item.price != null ? formatPrice(item.price) : "Price not available"}
                   </p>
                 </div>
               </motion.div>

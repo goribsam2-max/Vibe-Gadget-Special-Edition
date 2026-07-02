@@ -8,6 +8,7 @@ import { auth, db } from "../../firebase";
 import { doc, setDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { PixelImage } from "./PixelImage";
 import { getProductCoinReward } from "../../lib/coinRewards";
+import { triggerHaptic } from "../../lib/haptics";
 
 export const ProductCard = ({ product, index }: { product: Product, index?: number }) => {
   const navigate = useNavigate();
@@ -52,12 +53,14 @@ export const ProductCard = ({ product, index }: { product: Product, index?: numb
   }, [product.id]);
 
   const handleAdd = (e: React.MouseEvent) => {
+    triggerHaptic();
     e.preventDefault();
     e.stopPropagation();
     navigate(`/product/${productSlug}/${product.id}`);
   };
 
   const toggleWishlist = async (e: React.MouseEvent) => {
+    triggerHaptic();
     e.preventDefault();
     e.stopPropagation();
 
@@ -99,12 +102,12 @@ export const ProductCard = ({ product, index }: { product: Product, index?: numb
         className={`flex ${isLarge ? "flex-row md:flex-col" : "flex-col"} h-full bg-white dark:bg-zinc-900 overflow-hidden group relative rounded-[15px] shadow-sm border border-zinc-100 dark:border-zinc-800`}
       >
         {/* Image Container */}
-        <div className={`relative ${isLarge ? "w-[45%] md:w-full" : "w-full"} shrink-0 ${isLarge ? "min-h-[140px] md:h-44 sm:h-52" : "h-44 sm:h-52"} overflow-hidden bg-[#f9f9f9] dark:bg-zinc-800 flex items-center justify-center isolation-auto border-r border-zinc-100 dark:border-zinc-800 md:border-r-0`}>
+        <div className={`relative ${isLarge ? "w-[45%] md:w-full" : "w-full"} shrink-0 ${isLarge ? "min-h-[140px] md:h-44 sm:h-52" : "h-44 sm:h-52"} overflow-hidden bg-white dark:bg-zinc-800 flex items-center justify-center isolation-auto border-r border-zinc-100 dark:border-zinc-800 md:border-r-0`}>
           <PixelImage
             src={product.image}
             alt={product.name}
             className="w-full h-full z-10"
-            imgClassName={`mix-blend-multiply dark:mix-blend-normal group-hover:scale-105 transition-transform duration-500 object-contain p-3 rounded-[15px]`}
+            imgClassName={`group-hover:scale-105 transition-transform duration-500 object-contain p-3 rounded-[15px]`}
           />
 
           {/* Top Left/Right Discount Badge */}

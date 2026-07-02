@@ -53,6 +53,10 @@ const ManageConfig: React.FC = () => {
     affiliateTier4Commission: 200,
     pwaPopupStyle: "style1",
     pwaPopupIcon: "",
+    customerHotline: "+8801747708843",
+    whatsappNumber: "+8801747708843",
+    facebookPageUrl: "https://facebook.com/VibeGadget",
+    facebookPageName: "Vibe Gadget Facebook Page",
   });
 
   const [voiceBotOptions, setVoiceBotOptions] = useState<any[]>([
@@ -581,6 +585,39 @@ const ManageConfig: React.FC = () => {
             >
               + Add Voice Option
             </button>
+          </div>
+        </AccordionSection>
+
+        <AccordionSection
+          id="contact"
+          title="Contact Information"
+          icon="headset"
+          expanded={expandedSection === "contact"}
+          onToggle={() =>
+            setExpandedSection(expandedSection === "contact" ? null : "contact")
+          }
+        >
+          <div className="space-y-4">
+            <Field
+              label="Customer Hotline Number"
+              value={configs.customerHotline}
+              onChange={(v: string) => setConfigs({ ...configs, customerHotline: v })}
+            />
+            <Field
+              label="WhatsApp Number"
+              value={configs.whatsappNumber}
+              onChange={(v: string) => setConfigs({ ...configs, whatsappNumber: v })}
+            />
+            <Field
+              label="Facebook Page Name"
+              value={configs.facebookPageName}
+              onChange={(v: string) => setConfigs({ ...configs, facebookPageName: v })}
+            />
+            <Field
+              label="Facebook Page URL"
+              value={configs.facebookPageUrl}
+              onChange={(v: string) => setConfigs({ ...configs, facebookPageUrl: v })}
+            />
           </div>
         </AccordionSection>
 

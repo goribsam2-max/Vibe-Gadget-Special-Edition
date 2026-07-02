@@ -23,6 +23,7 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import Icon from "../components/Icon";
+import { triggerHaptic } from "../lib/haptics";
 import SEO from "../components/SEO";
 import { PixelImage } from "../components/ui/PixelImage";
 import { getProductCoinReward } from "../lib/coinRewards";
@@ -461,6 +462,7 @@ const ProductDetails: React.FC = () => {
   }, [product, mysteryOffer]);
 
   const toggleWishlist = async () => {
+    triggerHaptic();
     if (!auth.currentUser)
       return notify("Please sign in to save items", "info");
     if (!product || !resolvedId) return;
@@ -480,7 +482,7 @@ const ProductDetails: React.FC = () => {
         await setDoc(wishlistRef, {
           productId: resolvedId,
           name: product.name,
-          image: product.image,
+          image: product.image || (product.images && product.images[0]) || "",
           price: product.price,
           rating: product.rating,
           addedAt: Date.now(),
@@ -493,6 +495,7 @@ const ProductDetails: React.FC = () => {
   };
 
   const addToCart = (redirect = false) => {
+    triggerHaptic();
     if (!product) return;
     if (!redirect) setAddingToCart(true);
 
@@ -563,6 +566,7 @@ const ProductDetails: React.FC = () => {
   };
 
   const handleBundleAddToCart = () => {
+    triggerHaptic();
     if (!product) return;
     setAddingBundle(true);
 

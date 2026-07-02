@@ -3,6 +3,7 @@ import { Moon, Sun, Monitor } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useTheme } from "../ThemeContext"
+import { triggerHaptic } from "@/lib/haptics"
 
 type AnimatedThemeTogglerProps = {
   className?: string
@@ -26,7 +27,10 @@ export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) =
   return (
     <div className={cn("relative", className)} ref={containerRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          triggerHaptic();
+          setIsOpen(!isOpen);
+        }}
         aria-label="Switch theme"
         className="flex items-center justify-center p-2 rounded-full outline-none focus:outline-none active:outline-none focus:ring-0 cursor-pointer"
         type="button"
@@ -75,6 +79,7 @@ export const AnimatedThemeToggler = ({ className }: AnimatedThemeTogglerProps) =
               <button
                 key={item.id}
                 onClick={() => {
+                  triggerHaptic();
                   setTheme(item.id as any);
                   setIsOpen(false);
                 }}

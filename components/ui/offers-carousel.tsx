@@ -113,7 +113,7 @@ export const OffersCarousel = React.forwardRef<HTMLDivElement, OffersCarouselPro
     React.useEffect(() => {
         const currentCarousel = carouselRef.current;
         if (currentCarousel) {
-            currentCarousel.addEventListener("scroll", checkScrollPosition);
+            currentCarousel.addEventListener("scroll", checkScrollPosition, { passive: true });
             checkScrollPosition(); // Initial check
         }
         return () => {

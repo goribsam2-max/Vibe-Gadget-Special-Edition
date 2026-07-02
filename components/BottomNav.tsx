@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Home, MessageCircle, ShoppingCart, User, Layers } from "lucide-react";
+import { triggerHaptic } from "../lib/haptics";
 
 const BottomNav: React.FC = () => {
   const location = useLocation();
@@ -52,6 +53,7 @@ const BottomNav: React.FC = () => {
               <NavLink
                 key={link.to}
                 to={link.to}
+                onClick={() => triggerHaptic()}
                 className="flex flex-col items-center justify-center flex-1 h-full relative group"
               >
                 {isActive && (

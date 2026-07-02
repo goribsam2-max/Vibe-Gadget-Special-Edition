@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import { sendTicketToTelegram } from "../services/telegram";
 import { useNotify } from "../components/Notifications";
@@ -13,6 +13,15 @@ const HelpCenter: React.FC = () => {
   const notify = useNotify();
   const [activeTab, setActiveTab] = useState("FAQ");
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    getDoc(doc(db, "settings", "platform")).then((snap) => {
+      if (snap.exists()) {
+        setSettings(snap.data());
+      }
+    });
+  }, []);
 
   const [ticketMode, setTicketMode] = useState(false);
   const [ticketForm, setTicketForm] = useState({ subject: "", message: "" });
@@ -44,20 +53,24 @@ const HelpCenter: React.FC = () => {
     {
       label: "Customer Hotline",
       sub: "Available 10 AM to 10 PM",
-      icon: "phone-alt",
-      action: () => window.open("tel:01778953114"),
+      icon: <Icon name="phone-alt" className="text-xl" />,
+      action: () => window.open(`tel:${settings?.customerHotline || "+8801747708843"}`),
     },
     {
       label: "WhatsApp Support",
       sub: "Instant messaging assistance",
-      icon: "whatsapp",
-      action: () => window.open("https://wa.me/8801778953114"),
+      icon: <Icon name="whatsapp" className="text-xl" />,
+      action: () => window.open(`https://wa.me/${settings?.whatsappNumber?.replace(/[^0-9]/g, '') || "8801747708843"}`),
     },
     {
-      label: "Vibe Facebook Page",
+      label: settings?.facebookPageName || "Vibe Gadget Facebook Page",
       sub: "Follow us for updates",
-      icon: "facebook",
-      action: () => window.open("https://facebook.com"),
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-xl w-5 h-5">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      ),
+      action: () => window.open(settings?.facebookPageUrl || "https://facebook.com"),
     },
   ];
 
@@ -174,7 +187,7 @@ const HelpCenter: React.FC = () => {
                       className="p-6 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[2rem] hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-600 transition-all flex flex-col items-start gap-4 group text-left"
                     >
                       <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-zinc-100 dark:group-hover:text-zinc-900 transition-colors">
-                        <Icon name={opt.icon} className="text-xl" />
+                        {typeof opt.icon === 'string' ? <Icon name={opt.icon as any} className="text-xl" /> : opt.icon}
                       </div>
                       <div>
                         <h4 className="font-bold text-base text-zinc-900 dark:text-zinc-100 tracking-tight">

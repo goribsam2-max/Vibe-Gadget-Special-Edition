@@ -37,6 +37,25 @@ const translations: Record<Language, Record<string, string>> = {
     'accepted_payments': 'গ্রহণযোগ্য পেমেন্ট',
     'privacy_policy': 'গোপনীয়তা নীতি',
     'terms': 'শর্তাবলী',
+    'Sign In Required': 'সাইন ইন আবশ্যক',
+    'Please login to view and manage your saved tech essentials.': 'আপনার সংরক্ষিত প্রযুক্তি পণ্যগুলি দেখতে এবং পরিচালনা করতে অনুগ্রহ করে লগইন করুন।',
+    'Sign In Now': 'এখনই সাইন ইন করুন',
+    'Nothing saved yet': 'এখনো কিছু সংরক্ষণ করা হয়নি',
+    'Start Exploring': 'এক্সপ্লোর শুরু করুন',
+    'Shipping Information': 'শিপিং তথ্য',
+    'Add Shipping Address': 'শিপিং ঠিকানা যোগ করুন',
+    'No Address Found': 'কোনো ঠিকানা পাওয়া যায়নি',
+    'Please add a shipping address to continue.': 'এগিয়ে যেতে অনুগ্রহ করে একটি শিপিং ঠিকানা যোগ করুন।',
+    'Payment Method': 'পেমেন্ট পদ্ধতি',
+    'Order Summary': 'অর্ডারের সারাংশ',
+    'Subtotal': 'উপমোট',
+    'Delivery Fee': 'ডেলিভারি চার্জ',
+    'Total': 'মোট',
+    'Place Order': 'অর্ডার করুন',
+    'Checkout & Pay': 'চেকআউট ও পে করুন',
+    'Payment Details': 'পেমেন্টের বিবরণ',
+    'Select a Voucher': 'ভাউচার নির্বাচন করুন',
+    'Use': 'ব্যবহার করুন'
   }
 };
 

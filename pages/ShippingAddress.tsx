@@ -15,7 +15,15 @@ const ShippingAddress: React.FC = () => {
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [newAddress, setNewAddress] = useState({ name: "", phone: "", altPhone: "", address: "" });
+  const [newAddress, setNewAddress] = useState({ 
+    name: "", 
+    phone: "", 
+    district: "", 
+    street: "", 
+    landmark: "", 
+    category: "Home", 
+    isDefault: true 
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,10 +47,15 @@ const ShippingAddress: React.FC = () => {
   }, []);
 
   const handleAdd = async () => {
-    if (!newAddress.name || !newAddress.phone || !newAddress.address) {
+    if (!newAddress.name || !newAddress.phone || !newAddress.district || !newAddress.street) {
       return notify("Please complete all required fields.", "error");
     }
-    const newAddrObj = { id: Math.random().toString(36).substring(7), ...newAddress };
+    const computedAddress = `${newAddress.street}, ${newAddress.district}${newAddress.landmark ? `, ${newAddress.landmark}` : ""}`;
+    const newAddrObj = { 
+      id: Math.random().toString(36).substring(7), 
+      ...newAddress,
+      address: computedAddress
+    };
     if (auth.currentUser) {
       try {
         const { setDoc } = await import("firebase/firestore");
@@ -50,7 +63,7 @@ const ShippingAddress: React.FC = () => {
         setSavedAddresses([...savedAddresses, newAddrObj]);
         setSelectedAddressId(newAddrObj.id);
         setIsAdding(false);
-        setNewAddress({ name: "", phone: "", altPhone: "", address: "" });
+        setNewAddress({ name: "", phone: "", district: "", street: "", landmark: "", category: "Home", isDefault: true });
         notify("Address saved!", "success");
       } catch (e) {
         notify("Error saving address.", "error");
@@ -133,30 +146,106 @@ const ShippingAddress: React.FC = () => {
         )}
 
         {isAdding && (
-          <div className="flex flex-col gap-4 animate-fade-in bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+          <div className="flex flex-col gap-5 animate-fade-in bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Add shipping address</h3>
+            
+            {/* Contact name */}
             <div className="space-y-2">
-              <Label>Full Name *</Label>
-              <Input placeholder="E.g. John Doe" value={newAddress.name} onChange={(e) => setNewAddress({...newAddress, name: e.target.value})} />
+              <Label className="font-semibold text-zinc-700 dark:text-zinc-300">Contact name <span className="text-rose-500">*</span></Label>
+              <Input className="py-6 rounded-xl border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500 bg-transparent text-base" placeholder="Please input the receiver's full name" value={newAddress.name} onChange={(e) => setNewAddress({...newAddress, name: e.target.value})} />
             </div>
+
+            {/* Contact number */}
             <div className="space-y-2">
-              <Label>Phone Number *</Label>
-              <Input placeholder="01XXXXXXXXX" value={newAddress.phone} onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})} />
+              <Label className="font-semibold text-zinc-700 dark:text-zinc-300">Contact number <span className="text-rose-500">*</span></Label>
+              <div className="flex border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-emerald-500">
+                <div className="flex items-center gap-2 px-4 bg-zinc-50 dark:bg-zinc-800/50 border-r border-zinc-200 dark:border-zinc-800">
+                  <div className="w-5 h-3.5 bg-green-600 relative overflow-hidden flex items-center justify-center rounded-[2px]"><div className="w-2 h-2 bg-red-500 rounded-full"></div></div>
+                  <span className="text-base font-medium">+880</span>
+                </div>
+                <input 
+                  type="tel"
+                  placeholder="Please input the receiver's phone number" 
+                  value={newAddress.phone} 
+                  onChange={(e) => setNewAddress({...newAddress, phone: e.target.value})}
+                  className="flex-1 px-4 py-3 text-base bg-transparent outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                />
+              </div>
             </div>
+
+            <div className="pt-2 pb-1 border-t border-zinc-100 dark:border-zinc-800 mt-2">
+              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-base">Address information</h3>
+            </div>
+
+            {/* District / Zone / Area */}
             <div className="space-y-2">
-              <Label>Detailed Address *</Label>
-              <Input placeholder="House, Road, Block, Area..." value={newAddress.address} onChange={(e) => setNewAddress({...newAddress, address: e.target.value})} />
+              <Label className="font-semibold text-zinc-700 dark:text-zinc-300">District / Zone / Area <span className="text-rose-500">*</span></Label>
+              <Input className="py-6 rounded-xl border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500 bg-transparent text-base" placeholder="Please select a District/Zone/Area" value={newAddress.district} onChange={(e) => setNewAddress({...newAddress, district: e.target.value})} />
             </div>
-            <div className="flex space-x-3 mt-4">
+
+            {/* Street Name... */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <Label className="font-semibold text-zinc-700 dark:text-zinc-300">Street Name, Building, Apartment No <span className="text-rose-500">*</span></Label>
+                <button type="button" onClick={() => setNewAddress({...newAddress, street: ""})} className="text-xs text-rose-500 font-bold hover:underline">Clear</button>
+              </div>
+              <textarea 
+                className="w-full min-h-[100px] p-4 text-base rounded-xl border border-zinc-200 dark:border-zinc-800 bg-transparent text-zinc-900 dark:text-zinc-100 outline-none focus:ring-1 focus:ring-emerald-500 placeholder:text-zinc-400 resize-none" 
+                placeholder="Building & Apartment No." 
+                value={newAddress.street} 
+                onChange={(e) => setNewAddress({...newAddress, street: e.target.value})} 
+              />
+            </div>
+
+            {/* Landmark */}
+            <div className="space-y-2">
+              <Label className="font-semibold text-zinc-700 dark:text-zinc-300">Landmark (Optional)</Label>
+              <Input className="py-6 rounded-xl border-zinc-200 dark:border-zinc-800 focus-visible:ring-emerald-500 bg-transparent text-base" placeholder="Add additional info" value={newAddress.landmark} onChange={(e) => setNewAddress({...newAddress, landmark: e.target.value})} />
+            </div>
+
+            {/* Category */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-2 pt-2 gap-3">
+              <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Address category</span>
+              <div className="flex gap-4">
+                {['Home', 'Office', 'Others'].map(cat => (
+                  <label key={cat} className="flex items-center gap-2 cursor-pointer group">
+                    <div className="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-indigo-500 transition-colors">
+                      {newAddress.category === cat && <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
+                    </div>
+                    <input type="radio" name="addressCat" checked={newAddress.category === cat} onChange={() => setNewAddress({...newAddress, category: cat})} className="sr-only" />
+                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{cat}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Default */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-1 gap-3">
+              <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Default shipping address</span>
+              <div className="flex gap-4">
+                {['On', 'Off'].map(opt => (
+                  <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                    <div className="relative flex items-center justify-center w-5 h-5 rounded-full border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-indigo-500 transition-colors">
+                      {(newAddress.isDefault ? 'On' : 'Off') === opt && <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full" />}
+                    </div>
+                    <input type="radio" name="isDefaultAddr" checked={(newAddress.isDefault ? 'On' : 'Off') === opt} onChange={() => setNewAddress({...newAddress, isDefault: opt === 'On'})} className="sr-only" />
+                    <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 pt-2">
               <Button
                 onClick={handleAdd}
-                className="flex-1 tracking-normal py-6"
+                className="w-full tracking-normal py-7 text-lg bg-[#ce1274] hover:bg-[#a60f5e] text-white font-bold rounded-full shadow-lg shadow-pink-500/20"
               >
                 Save
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => setIsAdding(false)}
-                className="py-6 px-6"
+                className="w-full py-6 mt-2 rounded-full font-semibold"
               >
                 Cancel
               </Button>
